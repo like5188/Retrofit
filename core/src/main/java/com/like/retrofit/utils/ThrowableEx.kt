@@ -1,0 +1,23 @@
+package com.like.retrofit.utils
+
+import com.google.gson.JsonParseException
+import org.json.JSONException
+import retrofit2.HttpException
+import java.net.ConnectException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
+import javax.net.ssl.SSLHandshakeException
+
+/**
+ * 获取自定义的网络请求错误消息，用于显示给用户看。
+ */
+fun Throwable?.getCustomNetworkMessage() =
+    when (this) {
+        is HttpException -> "网络错误【${this.code()}】"
+        is ConnectException -> "网络连接失败"
+        is SocketTimeoutException -> "网络连接超时"
+        is UnknownHostException -> "无法连接到服务器"
+        is JsonParseException, is JSONException -> "解析数据错误"
+        is SSLHandshakeException -> "证书验证失败"
+        else -> "请求失败，$this"
+    }

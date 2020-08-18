@@ -1,0 +1,4 @@
+include ':app', ':core'
+include ':download'
+include ':upload'
+include ':common'
