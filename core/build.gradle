@@ -9,7 +9,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -36,23 +36,17 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.core:core-ktx:1.3.1'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     // coroutines
-    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.4'
-    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.4'
-    // rxandroid（包含了 rxjava2.2.6）
-    compileOnly 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8'
+    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.8'
     // retrofit2
     api 'com.squareup.retrofit2:retrofit:2.9.0'
     api 'com.squareup.retrofit2:converter-gson:2.9.0'
-    api('com.squareup.retrofit2:adapter-rxjava2:2.9.0') {
-        // 避免和 rxandroid 冲突
-        exclude group: 'io.reactivex.rxjava2', module: 'rxjava'
-    }
     api 'com.squareup.retrofit2:converter-scalars:2.9.0'
     api 'com.squareup.okhttp3:logging-interceptor:4.8.0'
 }

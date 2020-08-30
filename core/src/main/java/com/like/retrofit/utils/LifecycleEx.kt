@@ -5,7 +5,6 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.like.retrofit.livedata.CallLiveData
-import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.Job
 import retrofit2.Call
 import kotlin.properties.ReadWriteProperty
@@ -65,20 +64,6 @@ fun <T> CallLiveData<T>?.bindToLifecycleOwner(
     bindToLifecycleOwner(lifecycleOwner, events) {
         if (!this.isCanceled) {
             this.cancel()
-        }
-    }
-    return this
-}
-
-@JvmOverloads
-fun Disposable?.bindToLifecycleOwner(
-    lifecycleOwner: LifecycleOwner,
-    vararg events: Lifecycle.Event = arrayOf(Lifecycle.Event.ON_DESTROY)
-): Disposable? {
-    this ?: return this
-    bindToLifecycleOwner(lifecycleOwner, events) {
-        if (!this.isDisposed) {
-            this.dispose()
         }
     }
     return this

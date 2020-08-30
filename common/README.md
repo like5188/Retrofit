@@ -2,7 +2,7 @@
 
 1、可以通过工具类：CommonRetrofit 进行网络请求。
 
-2、网络请求（都是在子线程中执行）支持的返回值类型：①、retrofit 原生支持的所有类型。 ②、RxJava2相关的所有类型 ③、LiveData<ApiResponse<T>> 。④、支持 kotlin 协程，直接在接口函数上添加 suspend 关键字。
+2、网络请求（都是在子线程中执行）支持的返回值类型：①、retrofit 原生支持的所有类型。 ②、LiveData<ApiResponse<T>> 。③、支持 kotlin 协程，直接在接口函数上添加 suspend 关键字。
 
 ## 使用方法：
 
@@ -10,46 +10,40 @@
 ```java
     根据自己的需求定义Api接口类。
     interface Api {
+        @FormUrlEncoded
+        @POST("/user/login")
+        suspend fun postField(@Field("username") username: String, @Field("password") password: String): ResponseBody
+
+        @FormUrlEncoded
+        @POST("/user/login")
+        suspend fun postFieldMap(@FieldMap data: @JvmSuppressWildcards Map<String, Any>): ResponseBody
+
+        @Multipart
+        @POST("/user/login")
+        suspend fun postPart(@Part("username") username: String, @Part("password") password: String): ResponseBody
+
+        @Multipart
+        @POST("/user/login")
+        suspend fun postPartMap(@PartMap data: @JvmSuppressWildcards Map<String, String>): ResponseBody
+
+        @POST("/users/channels/internet-hospital/token/")
+        suspend fun postBody(@Body params: JsonObject): ResponseBody
+
+        @POST("/users/channels/internet-hospital/token/")
+        suspend fun postBodyMap(@Body paramsMap: @JvmSuppressWildcards Map<String, Any>): ResponseBody
+
+        @POST("/users/channels/internet-hospital/token/")
+        suspend fun postBodyString(@Body params: String): ResponseBody
+
+        @POST("/users/channels/internet-hospital/token/")
+        suspend fun postBodyResultModel(@Body params: ResultModel<String>): ResponseBody
+
         @Headers("cache:60")
         @GET("sys/randomImage/{key}")
         suspend fun getQueryMap(@Path("key") key: String): ResultModel<String?>
 
-        @FormUrlEncoded
-        @POST("/user/login")
-        fun postField(@Field("username") username: String, @Field("password") password: String): Flowable<ResponseBody>
-
-        @FormUrlEncoded
-        @POST("/user/login")
-        fun postFieldMap(@FieldMap data: @JvmSuppressWildcards Map<String, Any>): Flowable<ResponseBody>
-
-        @Multipart
-        @POST("/user/login")
-        fun postPart(@Part("username") username: String, @Part("password") password: String): Flowable<ResponseBody>
-
-        @Multipart
-        @POST("/user/login")
-        fun postPartMap(@PartMap data: @JvmSuppressWildcards Map<String, String>): Flowable<ResponseBody>
-
-        @POST("/users/channels/internet-hospital/token/")
-        fun postBody(@Body params: Map<String, String>): Flowable<ResponseBody>
-
-        @POST("/users/channels/internet-hospital/token/")
-        fun postBody(@Body params: JsonObject): Flowable<ResponseBody>
-
-        @POST("/users/channels/internet-hospital/token/")
-        fun postBodyMap(@Body paramsMap: @JvmSuppressWildcards Map<String, Any>): Flowable<ResponseBody>
-
-        @POST("/users/channels/internet-hospital/token/")
-        fun postBodyString(@Body params: String): Flowable<ResponseBody>
-
-        @POST("/users/channels/internet-hospital/token/")
-        fun postBodyResultModel(@Body params: ResultModel<String>): Flowable<ResponseBody>
-
         @GET("/banner/json")
         fun getCall(@QueryMap paramsMap: @JvmSuppressWildcards Map<String, Any>): Call<String>
-
-        @GET("/banner/json")
-        suspend fun getSuspend(@QueryMap paramsMap: @JvmSuppressWildcards Map<String, Any>): String
 
         @GET("/banner/json")
         fun getLiveData(@QueryMap paramsMap: @JvmSuppressWildcards Map<String, Any>): CallLiveData<ApiResponse<Any>>
@@ -84,12 +78,6 @@
         lifecycleOwner: LifecycleOwner,
         vararg events: Lifecycle.Event = arrayOf(Lifecycle.Event.ON_DESTROY)
     ): CallLiveData<T>?
-
-    @JvmOverloads
-    fun Disposable?.bindToLifecycleOwner(
-        lifecycleOwner: LifecycleOwner,
-        vararg events: Lifecycle.Event = arrayOf(Lifecycle.Event.ON_DESTROY)
-    ): Disposable?
 
     @JvmOverloads
     fun <T> Job?.bindToLifecycleOwner(

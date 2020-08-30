@@ -34,8 +34,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     // coroutines
-    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.4'
-    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.4'
+    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8'
+    compileOnly 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.8'
 
     implementation project(':core')
 }

@@ -14,9 +14,6 @@ import com.like.retrofit.utils.aesEncrypt
 
 class MyApplication : Application() {
     companion object {
-        // 用来测试动态的公共参数和header
-        var publicParams = 1
-        var header = 1
         val mCommonRetrofit = CommonRetrofit()
         val mDownloadRetrofit = DownloadRetrofit()
         val mUploadRetrofit = UploadRetrofit()
@@ -26,12 +23,12 @@ class MyApplication : Application() {
         super.onCreate()
         val publicParamsInterceptor = object : PublicParamsInterceptor() {
             override fun getPublicParamsMap(): Map<String, String> {
-                return mapOf("PublicParams" to publicParams.toString())
+                return mapOf("PublicParams" to "PublicParams")
             }
         }
         val headerInterceptor = object : HeaderInterceptor() {
             override fun getHeaderMap(): Map<String, String> {
-                return mapOf("header" to header.toString())
+                return mapOf("header" to "header")
             }
         }
         val encryptInterceptor = object : EncryptInterceptor() {

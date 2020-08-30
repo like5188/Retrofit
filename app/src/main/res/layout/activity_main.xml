@@ -81,13 +81,6 @@
         <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onClick="getSuspend"
-                android:text="getSuspend"
-                android:textAllCaps="false" />
-
-        <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:onClick="getLiveData"
                 android:text="getLiveData"
                 android:textAllCaps="false" />
