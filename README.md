@@ -26,6 +26,9 @@
 在Module的gradle中加入：
 ```groovy
     dependencies {
+        // coroutines
+        implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:版本号'
+        implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:版本号'
         // 核心代码（必须）
         implementation 'com.github.like5188.Retrofit:core:版本号'
         // 普通网络请求
