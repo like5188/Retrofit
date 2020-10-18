@@ -34,8 +34,7 @@ class LiveDataCallAdapterFactory : CallAdapter.Factory() {
         )
     }
 
-    class LiveDataCallAdapter<T>(private val responseType: Type) :
-        CallAdapter<T, CallLiveData<ApiResponse<T>>> {
+    class LiveDataCallAdapter<T>(private val responseType: Type) : CallAdapter<T, CallLiveData<ApiResponse<T>>> {
 
         override fun responseType() = responseType
 
