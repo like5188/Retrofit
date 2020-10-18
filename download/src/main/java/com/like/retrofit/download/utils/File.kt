@@ -16,8 +16,9 @@ fun File.create(): Boolean =
     try {
         if (!this.isDirectory) {// 是文件
             if (!this.exists()) {
-                if (!this.parentFile.exists()) {// 如果父目录不存在
-                    this.parentFile.mkdirs()// 创建目录
+                val parentFile = this.parentFile
+                if (parentFile != null && !parentFile.exists()) {// 如果父目录不存在
+                    parentFile.mkdirs()// 创建目录
                 }
                 this.createNewFile()// 创建文件
             }
@@ -72,7 +73,7 @@ fun File?.split(count: Int): List<File>? {
                     } else {
                         // 循环读取时，用精确的缓存大小来控制每个子文件的大小为blockSize。
                         bytesRead =
-                                input.read(buffer, 0, if (remaining > bufferSize) bufferSize else remaining.toInt())
+                            input.read(buffer, 0, if (remaining > bufferSize) bufferSize else remaining.toInt())
                     }
                 }
             }
