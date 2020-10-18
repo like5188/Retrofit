@@ -30,11 +30,7 @@ sealed class ApiResponse<T> {
                     ApiSuccessResponse(body)
                 }
             } else {
-                ApiErrorResponse(
-                    HttpException(
-                        response
-                    )
-                )
+                ApiErrorResponse(HttpException(response))
             }
         }
     }
