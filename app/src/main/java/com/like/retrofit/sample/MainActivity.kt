@@ -17,8 +17,8 @@ import com.like.retrofit.common.utils.awaitApiResponse
 import com.like.retrofit.download.model.DownloadInfo
 import com.like.retrofit.download.utils.merge
 import com.like.retrofit.download.utils.split
-import com.like.retrofit.utils.bindToLifecycleOwner
-import com.like.retrofit.utils.getCustomNetworkMessage
+import com.like.retrofit.util.bindToLifecycleOwner
+import com.like.retrofit.util.getCustomNetworkMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File

@@ -1,7 +1,7 @@
 package com.like.retrofit.upload
 
 import androidx.lifecycle.MutableLiveData
-import com.like.retrofit.utils.OkHttpClientFactory
+import com.like.retrofit.util.OkHttpClientFactory
 import com.like.retrofit.RequestConfig
 import com.like.retrofit.upload.utils.UploadApi
 import okhttp3.MediaType

@@ -1,4 +1,4 @@
-package com.like.retrofit.utils
+package com.like.retrofit.util
 
 import okhttp3.RequestBody
 import okio.Buffer

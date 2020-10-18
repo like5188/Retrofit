@@ -1,4 +1,4 @@
-package com.like.retrofit.utils
+package com.like.retrofit.util
 
 import com.like.retrofit.RequestConfig
 import com.like.retrofit.interceptor.CacheInterceptor
@@ -17,7 +17,7 @@ object OkHttpClientFactory {
 
         // 设置HTTPS协议的证书
         if (requestConfig.getScheme() == "https" && requestConfig.certificateRawResId != -1) {
-            HttpsUtil.getSslSocketFactory(
+            HttpsUtils.getSslSocketFactory(
                 arrayOf(requestConfig.application.resources.openRawResource(requestConfig.certificateRawResId)),
                 null, null
             )?.let {

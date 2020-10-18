@@ -1,4 +1,4 @@
-package com.like.retrofit.utils;
+package com.like.retrofit.util;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -10,8 +10,8 @@ import android.net.NetworkInfo;
 /**
  * 网络相关的工具类
  */
-public class NetWorkUtil {
-    private NetWorkUtil() {
+public class NetWorkUtils {
+    private NetWorkUtils() {
         // 不允许直接构造此类，也不允许反射构造此类
         throw new UnsupportedOperationException("cannot be instantiated");
     }

@@ -1,4 +1,4 @@
-package com.like.retrofit.utils;
+package com.like.retrofit.util;
 
 import javax.net.ssl.*;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import java.security.cert.X509Certificate;
  * @author emilia.Zhang
  * @time 2017/8/11 9:43.
  */
-public class HttpsUtil {
+public class HttpsUtils {
     public static class SSLParams {
         public SSLSocketFactory sSLSocketFactory;
         public X509TrustManager trustManager;

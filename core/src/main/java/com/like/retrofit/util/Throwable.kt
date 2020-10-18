@@ -1,4 +1,4 @@
-package com.like.retrofit.utils
+package com.like.retrofit.util
 
 import com.google.gson.JsonParseException
 import org.json.JSONException

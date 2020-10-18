@@ -9,8 +9,8 @@ import com.like.retrofit.interceptor.EncryptInterceptor
 import com.like.retrofit.interceptor.HeaderInterceptor
 import com.like.retrofit.interceptor.PublicParamsInterceptor
 import com.like.retrofit.upload.UploadRetrofit
-import com.like.retrofit.utils.aesDecrypt
-import com.like.retrofit.utils.aesEncrypt
+import com.like.retrofit.util.aesDecrypt
+import com.like.retrofit.util.aesEncrypt
 
 class MyApplication : Application() {
     companion object {

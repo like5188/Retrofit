@@ -1,4 +1,4 @@
-package com.like.retrofit.utils
+package com.like.retrofit.util
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver

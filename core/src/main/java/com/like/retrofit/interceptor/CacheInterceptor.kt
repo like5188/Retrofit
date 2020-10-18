@@ -2,8 +2,8 @@ package com.like.retrofit.interceptor
 
 import android.app.Application
 import android.util.Log
-import com.like.retrofit.utils.NetWorkUtil
-import com.like.retrofit.utils.TAG
+import com.like.retrofit.util.NetWorkUtils
+import com.like.retrofit.util.TAG
 import okhttp3.CacheControl
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -40,7 +40,7 @@ class CacheInterceptor(val application: Application) : Interceptor {
         }
 
         // 接口设置了缓存时间
-        if (NetWorkUtil.isConnected(application)) {// 有网时
+        if (NetWorkUtils.isConnected(application)) {// 有网时
             Log.i(TAG, "有网络：从网络获取数据并缓存，缓存在$requestCacheTime 秒内可读取")
             return chain.proceed(request)
                 .newBuilder()

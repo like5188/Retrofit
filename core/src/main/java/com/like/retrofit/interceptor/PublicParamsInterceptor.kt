@@ -3,8 +3,8 @@ package com.like.retrofit.interceptor
 import android.util.Log
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.like.retrofit.utils.TAG
-import com.like.retrofit.utils.string
+import com.like.retrofit.util.TAG
+import com.like.retrofit.util.string
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody

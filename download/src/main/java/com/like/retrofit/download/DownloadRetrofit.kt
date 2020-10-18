@@ -4,7 +4,7 @@ import com.like.retrofit.download.factory.GetContentLengthConverterFactory
 import com.like.retrofit.download.livedata.CoroutineDownloadLiveData
 import com.like.retrofit.download.livedata.CoroutineDownloadLiveDataManager
 import com.like.retrofit.download.livedata.DownloadLiveData
-import com.like.retrofit.utils.OkHttpClientFactory
+import com.like.retrofit.util.OkHttpClientFactory
 import com.like.retrofit.RequestConfig
 import com.like.retrofit.download.model.DownloadInfo
 import com.like.retrofit.download.utils.DownloadApi

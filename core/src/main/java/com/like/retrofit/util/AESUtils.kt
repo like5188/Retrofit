@@ -1,6 +1,6 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package com.like.retrofit.utils
+package com.like.retrofit.util
 
 import android.util.Base64
 import javax.crypto.Cipher

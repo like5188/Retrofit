@@ -2,7 +2,7 @@ package com.like.retrofit.common
 
 import com.google.gson.Gson
 import com.like.retrofit.common.factory.LiveDataCallAdapterFactory
-import com.like.retrofit.utils.OkHttpClientFactory
+import com.like.retrofit.util.OkHttpClientFactory
 import com.like.retrofit.RequestConfig
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

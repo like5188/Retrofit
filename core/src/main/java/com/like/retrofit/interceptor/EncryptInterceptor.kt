@@ -1,7 +1,7 @@
 package com.like.retrofit.interceptor
 
 import android.util.Log
-import com.like.retrofit.utils.string
+import com.like.retrofit.util.string
 import okhttp3.Interceptor
 import okhttp3.RequestBody
 import okhttp3.Response

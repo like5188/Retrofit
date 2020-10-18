@@ -14,12 +14,12 @@ import okhttp3.Interceptor
  * @param writeTimeout          写超时时间（单位秒）
  * @param certificateRawResId   当采用RetrofitUtils.SCHEME_HTTPS请求时，证书文件的资源id。证书文件必须放在res/raw/目录下
  * @param interceptors          自定义的拦截器，继承自[Interceptor]。
- * [common]库中提供了几个默认拦截器：
- * [com.like.retrofit.common.interceptor.CacheInterceptor]、
- * [com.like.retrofit.common.interceptor.HeaderInterceptor]、
- * [com.like.retrofit.common.interceptor.PublicParamsInterceptor]、
- * [com.like.retrofit.common.interceptor.EncryptInterceptor]、
- * [com.like.retrofit.common.interceptor.DecryptInterceptor]
+ * [com.like.retrofit.interceptor]中提供了几个默认拦截器：
+ * [com.like.retrofit.interceptor.CacheInterceptor]、
+ * [com.like.retrofit.interceptor.HeaderInterceptor]、
+ * [com.like.retrofit.interceptor.PublicParamsInterceptor]、
+ * [com.like.retrofit.interceptor.EncryptInterceptor]、
+ * [com.like.retrofit.interceptor.DecryptInterceptor]
  */
 data class RequestConfig(
     val application: Application,
