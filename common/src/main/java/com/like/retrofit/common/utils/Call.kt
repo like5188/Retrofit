@@ -86,21 +86,13 @@ suspend fun <T : Any> Call<T>.awaitApiResponse(): ApiResponse<T> {
     return suspendCancellableCoroutine { continuation ->
         enqueue(object : Callback<T> {
             override fun onResponse(call: Call<T>?, response: Response<T>) {
-                continuation.resume(
-                    ApiResponse.create(
-                        response
-                    )
-                )
+                continuation.resume(ApiResponse.create(response))
             }
 
             override fun onFailure(call: Call<T>, t: Throwable) {
                 // Don't bother with resuming the continuation if it is already cancelled.
                 if (continuation.isCancelled) return
-                continuation.resume(
-                    ApiResponse.create(
-                        t
-                    )
-                )
+                continuation.resume(ApiResponse.create(t))
             }
         })
 
