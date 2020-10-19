@@ -169,7 +169,7 @@ class MainActivity : AppCompatActivity() {
     fun download(view: View) {
         lifecycleScope.launch(Dispatchers.Main) {
             MyApplication.mDownloadRetrofit.download(
-                "https://imtt.dd.qq.com/16891/apk/0524E1D7B89EA862E1003AF63B4DF9C6.apk",
+                "https://imtt.dd.qq.com/16891/apk/CA642F479EA9EBEC42632112CB14F470.apk",
                 File(cacheDir, "a.apk")
             ).collect()
         }
@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity() {
     fun downloadByMultiThread(view: View) {
         lifecycleScope.launch(Dispatchers.Main) {
             MyApplication.mDownloadRetrofit.download(
-                "https://imtt.dd.qq.com/16891/apk/0524E1D7B89EA862E1003AF63B4DF9C6.apk",
+                "https://imtt.dd.qq.com/16891/apk/CA642F479EA9EBEC42632112CB14F470.apk",
                 File(cacheDir, "a.apk"),
                 Runtime.getRuntime().availableProcessors()
             ).collect()
