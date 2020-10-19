@@ -170,7 +170,9 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.Main) {
             MyApplication.mDownloadRetrofit.download(
                 "https://imtt.dd.qq.com/16891/apk/8409D55AE4A1DB11320E466C427FD2E2.apk",
-                File(cacheDir, "a.apk")
+                File(cacheDir, "a.apk"),
+                deleteCache = true,
+                callbackInterval = 100
             ).collect()
         }
     }
@@ -184,7 +186,9 @@ class MainActivity : AppCompatActivity() {
             MyApplication.mDownloadRetrofit.download(
                 "https://imtt.dd.qq.com/16891/apk/8409D55AE4A1DB11320E466C427FD2E2.apk",
                 File(cacheDir, "a.apk"),
-                Runtime.getRuntime().availableProcessors()
+                Runtime.getRuntime().availableProcessors(),
+                deleteCache = true,
+                callbackInterval = 100
             ).collect()
         }
     }

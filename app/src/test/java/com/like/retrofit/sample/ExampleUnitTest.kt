@@ -1,10 +1,13 @@
 package com.like.retrofit.sample
 
-import kotlinx.coroutines.*
+import com.like.retrofit.download.model.DownloadInfo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.coroutines.*
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -12,56 +15,30 @@ import kotlin.coroutines.*
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
+    val flow1 = (1..2).asFlow().flatMapMerge {
+        flow {
+            delay(10)
+            aaa(this)
+            emit(111)
+        }
+    }
+
+    private suspend fun aaa(flowCollector: FlowCollector<Int>) {
+        delay(10)
+        flowCollector.emit(222)
+    }
+
     @Test
     fun addition_isCorrect() = runBlocking {
-        GlobalScope.launch(MyContinuationInterceptor1() + MyContinuationInterceptor()) {
-            log(1)
-            val job = async {
-                log(2)
-                delay(1000)
-                log(3)
-                "Hello"
-            }
-            log(4)
-            val result = job.await()
-            log("5. $result")
-        }.join()
-        log(6)
-    }
-
-    inner class MyContinuationInterceptor : ContinuationInterceptor {
-        override val key: CoroutineContext.Key<*> = ContinuationInterceptor
-
-        override fun <T> interceptContinuation(continuation: Continuation<T>): Continuation<T> {
-            return object : Continuation<T> {
-                override val context: CoroutineContext = continuation.context
-
-                override fun resumeWith(result: Result<T>) {
-                    log("MyContinuation resumeWith $result")
-                    continuation.resumeWith(result)
-                }
-            }
-        }
-    }
-
-    inner class MyContinuationInterceptor1 : ContinuationInterceptor {
-        override val key: CoroutineContext.Key<*> = ContinuationInterceptor
-
-        override fun <T> interceptContinuation(continuation: Continuation<T>): Continuation<T> {
-            return object : Continuation<T> {
-                override val context: CoroutineContext = continuation.context
-
-                override fun resumeWith(result: Result<T>) {
-                    log("MyContinuation1 resumeWith $result")
-                    continuation.resumeWith(result)
-                }
-            }
-        }
-    }
-
-    suspend fun getUser() = suspendCoroutine<Any?> {
-        log(11)
-        it.resume(null)
+        flow {
+            emit(1)
+            emit(2)
+            emitAll(flow1)
+            emit(3)
+        }.onEach {
+            log(it)
+        }.flowOn(Dispatchers.IO)
+            .collect()
     }
 
     private val dateFormat = SimpleDateFormat("HH:mm:ss:SSS")
