@@ -1,11 +1,13 @@
 package com.like.retrofit.download
 
+import android.util.Log
 import com.like.retrofit.RequestConfig
 import com.like.retrofit.download.factory.GetContentLengthConverterFactory
 import com.like.retrofit.download.model.DownloadInfo
 import com.like.retrofit.download.utils.DownloadApi
 import com.like.retrofit.download.utils.DownloadHelper
 import com.like.retrofit.util.OkHttpClientFactory
+import com.like.retrofit.util.getCustomNetworkMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import retrofit2.Retrofit
@@ -67,11 +69,15 @@ class DownloadRetrofit {
                 preHandleDownloadInfo.totalSize = checkParamsResult.fileLength
                 emitAll(DownloadHelper.download(retrofit, url, downloadFile, checkParamsResult.fileLength, threadCount))
             }
+        }.onEach {
+            Log.d("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
         }.catch { throwable ->
             preHandleDownloadInfo.status = DownloadInfo.Status.STATUS_FAILED
             preHandleDownloadInfo.throwable = throwable
             emit(preHandleDownloadInfo)
+            Log.e("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] ${throwable.getCustomNetworkMessage()}")
         }.flowOn(Dispatchers.IO)
+
     }
 
     /**
