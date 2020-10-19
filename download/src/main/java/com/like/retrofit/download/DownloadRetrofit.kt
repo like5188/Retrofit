@@ -7,10 +7,7 @@ import com.like.retrofit.download.utils.DownloadApi
 import com.like.retrofit.download.utils.DownloadHelper
 import com.like.retrofit.util.OkHttpClientFactory
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.*
 import retrofit2.Retrofit
 import java.io.File
 
@@ -68,7 +65,7 @@ class DownloadRetrofit {
                 emit(preHandleDownloadInfo)
             } else {
                 preHandleDownloadInfo.totalSize = checkParamsResult.fileLength
-                DownloadHelper.download(this, retrofit, url, downloadFile, checkParamsResult.fileLength, threadCount)
+                emitAll(DownloadHelper.download(retrofit, url, downloadFile, checkParamsResult.fileLength, threadCount))
             }
         }.catch { throwable ->
             preHandleDownloadInfo.status = DownloadInfo.Status.STATUS_FAILED

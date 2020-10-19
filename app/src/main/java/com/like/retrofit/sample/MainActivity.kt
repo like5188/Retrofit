@@ -175,7 +175,7 @@ class MainActivity : AppCompatActivity() {
                 if (it.throwable != null) {
                     Log.e(TAG, "[${Thread.currentThread().name} ${Thread.currentThread().id}] ${it.throwable.getCustomNetworkMessage()}")
                 } else {
-                    Log.d(TAG, "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
+//                    Log.d(TAG, "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
                 }
             }
         }

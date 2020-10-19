@@ -2,43 +2,46 @@ package com.like.retrofit.download.utils
 
 import android.util.Log
 import com.like.retrofit.download.model.DownloadInfo
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
 import okhttp3.ResponseBody
-import retrofit2.Response
 import retrofit2.Retrofit
 import java.io.File
 import java.io.RandomAccessFile
 
 object DownloadHelper {
-    internal suspend fun download(
-        flowCollector: FlowCollector<DownloadInfo>,
+    @OptIn(FlowPreview::class)
+    internal fun download(
         retrofit: Retrofit,
         url: String,
         downloadFile: File,
         fileLength: Long,
         threadCount: Int
-    ) {
-        downloadFile.split(fileLength, threadCount)
-            .forEach { splitFileInfo ->
-                // 开始下载
-                val response = retrofit.create(DownloadApi::class.java)
-                    .downloadFile(url, "bytes=${splitFileInfo.from}-${splitFileInfo.to}")
-                // 处理返回数据
-                val downloadInfo = DownloadInfo().also {
-                    it.downloadFileAbsolutePath = splitFileInfo.filePath
-                    it.url = url
-                    it.threadCount = threadCount
-                    it.totalSize = splitFileInfo.totalSize
-                }
-                handleResponse(flowCollector, downloadInfo, response)
-            }
-    }
+    ) = downloadFile.split(fileLength, threadCount)
+        .asFlow()
+        .flatMapMerge { splitFileInfo ->
+            download(splitFileInfo, retrofit, url, threadCount)
+        }
 
-    private suspend fun handleResponse(
-        flowCollector: FlowCollector<DownloadInfo>,
-        downloadInfo: DownloadInfo,
-        response: Response<ResponseBody>
-    ) {
+    private fun download(
+        splitFileInfo: SplitFileInfo,
+        retrofit: Retrofit,
+        url: String,
+        threadCount: Int
+    ) = flow {
+        // 开始下载
+        val response = retrofit.create(DownloadApi::class.java)
+            .downloadFile(url, "bytes=${splitFileInfo.from}-${splitFileInfo.to}")
+        // 处理返回数据
+        val downloadInfo = DownloadInfo().also {
+            it.downloadFileAbsolutePath = splitFileInfo.filePath
+            it.url = url
+            it.threadCount = threadCount
+            it.totalSize = splitFileInfo.totalSize
+        }
         if (response.isSuccessful) {
             val body = response.body()
             if (body == null || response.code() == 204) {// 204 No content，表示请求成功，但没有资源可返回。
@@ -47,7 +50,7 @@ object DownloadHelper {
             } else {
                 // downloadInfo.totalSize <= 0说明range的to比from小。
                 if (downloadInfo.cachedSize < downloadInfo.totalSize) {
-                    saveBodyToFile(flowCollector, downloadInfo, body)
+                    saveBodyToFile(this, downloadInfo, body)
                 }
                 downloadInfo.status = DownloadInfo.Status.STATUS_SUCCESSFUL
             }
@@ -57,7 +60,7 @@ object DownloadHelper {
             downloadInfo.status = DownloadInfo.Status.STATUS_FAILED
             downloadInfo.throwable = RuntimeException("下载失败：code=${response.code()}")
         }
-        flowCollector.emit(downloadInfo)
+        emit(downloadInfo)
     }
 
     /**
