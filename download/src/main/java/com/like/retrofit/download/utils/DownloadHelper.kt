@@ -1,5 +1,6 @@
 package com.like.retrofit.download.utils
 
+import android.util.Log
 import com.like.retrofit.download.model.DownloadInfo
 import kotlinx.coroutines.flow.FlowCollector
 import okhttp3.ResponseBody
@@ -77,6 +78,7 @@ object DownloadHelper {
 
                     downloadInfo.status = DownloadInfo.Status.STATUS_RUNNING
                     flowCollector.emit(downloadInfo)
+                    Log.d("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $downloadInfo")
 
                     bytesRead = inputStream.read(buffer)
                 }
