@@ -42,10 +42,7 @@ class GetContentLengthConverterFactory : Converter.Factory() {
     ): Converter<*, RequestBody> {
         val gson = Gson()
         val adapter = gson.getAdapter(TypeToken.get(type))
-        return RequestBodyConverter(
-            gson,
-            adapter
-        )
+        return RequestBodyConverter(gson, adapter)
     }
 
     class ResponseBodyConverter : Converter<ResponseBody, Long> {

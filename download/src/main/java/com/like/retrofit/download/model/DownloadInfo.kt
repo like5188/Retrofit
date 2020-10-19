@@ -35,23 +35,27 @@ class DownloadInfo {
      * 文件的总大小
      */
     var totalSize: Long = 0
+
     /**
      * 当前的下载状态
      */
-    var status =
-        Status.STATUS_PENDING
+    var status = Status.STATUS_PENDING
+
     /**
      * 当状态为[Status.STATUS_FAILED]时，对应的Throwable
      */
     var throwable: Throwable? = null
+
     /**
      * 下载文件的路径。
      */
     var downloadFileAbsolutePath: String = ""
+
     /**
      * 下载地址
      */
     var url: String = ""
+
     /**
      * 子线程数量。
      */

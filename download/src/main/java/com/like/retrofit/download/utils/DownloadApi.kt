@@ -1,7 +1,7 @@
 package com.like.retrofit.download.utils
 
 import okhttp3.ResponseBody
-import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Streaming
@@ -94,7 +94,7 @@ interface DownloadApi {
      */
     @Streaming// 这个注解必须添加，否则文件全部写入内存，文件过大会造成内存溢出
     @GET
-    fun downloadFile(@Url url: String, @Header("RANGE") range: String): Call<ResponseBody>
+    suspend fun downloadFile(@Url url: String, @Header("RANGE") range: String): Response<ResponseBody>
 
     /**
      * 获取请求内容大小

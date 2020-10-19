@@ -1,10 +1,7 @@
 package com.like.retrofit.sample
 
 import com.google.gson.JsonObject
-import com.like.retrofit.common.model.ApiResponse
-import com.like.retrofit.livedata.CallLiveData
 import okhttp3.ResponseBody
-import retrofit2.Call
 import retrofit2.http.*
 
 interface Api {
@@ -40,11 +37,5 @@ interface Api {
     @Headers("cache:60")
     @GET("sys/randomImage/{key}")
     suspend fun getQueryMap(@Path("key") key: String): ResultModel<String?>
-
-    @GET("/banner/json")
-    fun getCall(@QueryMap paramsMap: @JvmSuppressWildcards Map<String, Any>): Call<String>
-
-    @GET("/banner/json")
-    fun getLiveData(@QueryMap paramsMap: @JvmSuppressWildcards Map<String, Any>): CallLiveData<ApiResponse<Any>>
 
 }

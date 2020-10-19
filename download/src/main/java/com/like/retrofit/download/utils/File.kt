@@ -5,31 +5,29 @@ import android.annotation.SuppressLint
 import androidx.annotation.RequiresPermission
 import java.io.File
 import java.io.RandomAccessFile
-import java.lang.Exception
 
 /**
  * 如果file不存在，则创建。
  */
 @SuppressLint("MissingPermission")
 @RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-fun File.create(): Boolean =
-    try {
-        if (!this.isDirectory) {// 是文件
-            if (!this.exists()) {
-                val parentFile = this.parentFile
-                if (parentFile != null && !parentFile.exists()) {// 如果父目录不存在
-                    parentFile.mkdirs()// 创建目录
-                }
-                this.createNewFile()// 创建文件
+fun File.create(): Boolean = try {
+    if (!this.isDirectory) {// 是文件
+        if (!this.exists()) {
+            val parentFile = this.parentFile
+            if (parentFile != null && !parentFile.exists()) {// 如果父目录不存在
+                parentFile.mkdirs()// 创建目录
             }
-        } else if (!this.exists()) {// 是目录，并且不存在
-            this.mkdirs()// 创建目录
+            this.createNewFile()// 创建文件
         }
-        true
-    } catch (e: Exception) {
-        e.printStackTrace()
-        false
+    } else if (!this.exists()) {// 是目录，并且不存在
+        this.mkdirs()// 创建目录
     }
+    true
+} catch (e: Exception) {
+    e.printStackTrace()
+    false
+}
 
 /**
  * 分割文件
@@ -73,7 +71,11 @@ fun File?.split(count: Int): List<File>? {
                     } else {
                         // 循环读取时，用精确的缓存大小来控制每个子文件的大小为blockSize。
                         bytesRead =
-                            input.read(buffer, 0, if (remaining > bufferSize) bufferSize else remaining.toInt())
+                            input.read(
+                                buffer,
+                                0,
+                                if (remaining > bufferSize) bufferSize else remaining.toInt()
+                            )
                     }
                 }
             }

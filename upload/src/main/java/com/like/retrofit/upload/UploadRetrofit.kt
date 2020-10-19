@@ -1,9 +1,9 @@
 package com.like.retrofit.upload
 
 import androidx.lifecycle.MutableLiveData
-import com.like.retrofit.util.OkHttpClientFactory
 import com.like.retrofit.RequestConfig
 import com.like.retrofit.upload.utils.UploadApi
+import com.like.retrofit.util.OkHttpClientFactory
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -14,7 +14,7 @@ import okio.Buffer
 import okio.BufferedSink
 import okio.ForwardingSink
 import okio.buffer
-import retrofit2.Call
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
@@ -52,7 +52,7 @@ class UploadRetrofit {
         fileMediaType: MediaType? = "multipart/form-data".toMediaTypeOrNull(),
         params: Map<String, String>? = null,
         paramsMediaType: MediaType? = "text/plain".toMediaTypeOrNull()
-    ): Call<ResponseBody> {
+    ): Response<ResponseBody> {
         val retrofit = mRetrofit ?: throw UnsupportedOperationException("you must call init() method first")
         val partList: List<MultipartBody.Part> = files.map {
             MultipartBody.Part.createFormData(

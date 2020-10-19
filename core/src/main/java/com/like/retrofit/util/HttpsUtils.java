@@ -1,12 +1,23 @@
 package com.like.retrofit.util;
 
-import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.*;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * describe https 绑定证书工具类
@@ -36,11 +47,7 @@ public class HttpsUtils {
             sslParams.sSLSocketFactory = sslContext.getSocketFactory();
             sslParams.trustManager = trustManager;
             return sslParams;
-        } catch (NoSuchAlgorithmException e) {
-            throw new AssertionError(e);
-        } catch (KeyManagementException e) {
-            throw new AssertionError(e);
-        } catch (KeyStoreException e) {
+        } catch (Exception e) {
             throw new AssertionError(e);
         }
     }
@@ -83,9 +90,7 @@ public class HttpsUtils {
                 try {
                     if (certificate != null)
                         certificate.close();
-                } catch (IOException e)
-
-                {
+                } catch (IOException e) {
                 }
             }
             TrustManagerFactory trustManagerFactory = null;
@@ -97,12 +102,6 @@ public class HttpsUtils {
             TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
 
             return trustManagers;
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -120,16 +119,6 @@ public class HttpsUtils {
             keyManagerFactory.init(clientKeyStore, password.toCharArray());
             return keyManagerFactory.getKeyManagers();
 
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnrecoverableKeyException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }

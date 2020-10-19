@@ -6,21 +6,16 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.JsonObject
-import com.like.retrofit.common.model.ApiEmptyResponse
-import com.like.retrofit.common.model.ApiErrorResponse
-import com.like.retrofit.common.model.ApiSuccessResponse
-import com.like.retrofit.common.utils.await
-import com.like.retrofit.common.utils.awaitApiResponse
-import com.like.retrofit.download.model.DownloadInfo
 import com.like.retrofit.download.utils.merge
 import com.like.retrofit.download.utils.split
-import com.like.retrofit.util.bindToLifecycleOwner
 import com.like.retrofit.util.getCustomNetworkMessage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -146,117 +141,67 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun getCall(view: View) {
+    @SuppressLint("MissingPermission")
+    fun uploadFiles(view: View) {
         lifecycleScope.launch(Dispatchers.Main) {
             try {
-                val result = MyApplication.mCommonRetrofit.getService<Api>()
-                    .getCall(mapOf("lastMondifiedTime" to 13399857800))
-                    .await()
-                Log.i(TAG, result)
+                val response = MyApplication.mUploadRetrofit
+                    .uploadFiles("url", mapOf(File("../settings.gradle") to MutableLiveData()))
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body == null || response.code() == 204) {
+                        Log.e(TAG, "body is null or response code is 204")
+                    } else {
+                        withContext(Dispatchers.IO) {
+                            Log.e(TAG, body.string())
+                        }
+                    }
+                } else {
+                    Log.e(TAG, HttpException(response).getCustomNetworkMessage())
+                }
             } catch (e: Exception) {
                 Log.e(TAG, e.getCustomNetworkMessage())
             }
         }
     }
 
-    fun getLiveData(view: View) {
-        MyApplication.mCommonRetrofit.getService<Api>()
-            .getLiveData(mapOf("lastMondifiedTime" to 13399857800))
-            .bindToLifecycleOwner(this@MainActivity)
-            ?.observe(this@MainActivity, Observer { apiResponse ->
-                when (apiResponse) {
-                    is ApiEmptyResponse -> {
-                        Log.e(TAG, apiResponse.toString())
-                    }
-                    is ApiSuccessResponse -> {
-                        Log.i(TAG, apiResponse.body.toString())
-                    }
-                    is ApiErrorResponse -> {
-                        Log.e(TAG, apiResponse.throwable.getCustomNetworkMessage())
-                    }
-                }
-            })
-    }
-
     @SuppressLint("MissingPermission")
-    fun uploadFiles(view: View) {
+    fun download(view: View) {
         lifecycleScope.launch(Dispatchers.Main) {
-            when (val apiResponse = MyApplication.mUploadRetrofit
-                .uploadFiles("url", mapOf(File("../settings.gradle") to MutableLiveData()))
-                .awaitApiResponse()) {
-                is ApiEmptyResponse -> {
-                    Log.d(TAG, "2 ${Thread.currentThread().name}")
-                    Log.e(TAG, apiResponse.toString())
-                }
-                is ApiSuccessResponse -> {
-                    Log.d(TAG, "3 ${Thread.currentThread().name}")
-                    Log.i(TAG, apiResponse.body.toString())
-                }
-                is ApiErrorResponse -> {
-                    Log.d(TAG, "4 ${Thread.currentThread().name}")
-                    Log.e(TAG, apiResponse.throwable.getCustomNetworkMessage())
-                }
-                else -> {
+            MyApplication.mDownloadRetrofit.download(
+                "https://qd.myapp.com/myapp/qqteam/pcqq/PCQQ2019.exe",
+                File(cacheDir, "PCQQ2019.exe")
+            ).collect {
+                if (it.throwable != null) {
+                    Log.e(TAG, "[${Thread.currentThread().name} ${Thread.currentThread().id}] ${it.throwable.getCustomNetworkMessage()}")
+                } else {
+                    Log.d(TAG, "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
                 }
             }
         }
     }
 
-    private var liveData: com.like.retrofit.download.livedata.DownloadLiveData? = null
-
-    @SuppressLint("MissingPermission")
-    fun download(view: View) {
-        lifecycleScope.launch(Dispatchers.Main) {
-            liveData = MyApplication.mDownloadRetrofit.download(
-                "https://qd.myapp.com/myapp/qqteam/pcqq/PCQQ2019.exe",
-                File(cacheDir, "PCQQ2019.exe")
-            )
-            liveData?.observe(
-                this@MainActivity,
-                Observer<DownloadInfo> { downloadInfo ->
-                    if (downloadInfo?.throwable != null) {
-                        Log.e(TAG, downloadInfo.throwable.getCustomNetworkMessage())
-                    } else {
-                        Log.d(
-                            TAG,
-                            "[${Thread.currentThread().name} ${Thread.currentThread().id}] $downloadInfo"
-                        )
-                    }
-                })
-        }
-    }
-
     fun pause(view: View) {
-        liveData?.pause()
     }
-
-    private var liveDataByMultiThread: com.like.retrofit.download.livedata.DownloadLiveData? = null
 
     @SuppressLint("MissingPermission")
     fun downloadByMultiThread(view: View) {
         lifecycleScope.launch(Dispatchers.Main) {
-            liveDataByMultiThread = MyApplication.mDownloadRetrofit.download(
+            MyApplication.mDownloadRetrofit.download(
                 "https://qd.myapp.com/myapp/qqteam/pcqq/PCQQ2019.exe",
                 File(cacheDir, "PCQQ2019.exe"),
                 Runtime.getRuntime().availableProcessors()
-            )
-            liveDataByMultiThread?.observe(
-                this@MainActivity,
-                Observer<DownloadInfo> { downloadInfo ->
-                    if (downloadInfo?.throwable != null) {
-                        Log.e(TAG, downloadInfo.throwable.getCustomNetworkMessage())
-                    } else {
-                        Log.d(
-                            TAG,
-                            "[${Thread.currentThread().name} ${Thread.currentThread().id}] $downloadInfo"
-                        )
-                    }
-                })
+            ).collect {
+                if (it.throwable != null) {
+                    Log.e(TAG, "[${Thread.currentThread().name} ${Thread.currentThread().id}] ${it.throwable.getCustomNetworkMessage()}")
+                } else {
+                    Log.d(TAG, "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
+                }
+            }
         }
     }
 
     fun pauseByMultiThread(view: View) {
-        liveDataByMultiThread?.pause()
     }
 
     @SuppressLint("MissingPermission")

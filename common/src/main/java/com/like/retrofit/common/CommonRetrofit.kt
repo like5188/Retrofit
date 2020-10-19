@@ -1,9 +1,8 @@
 package com.like.retrofit.common
 
 import com.google.gson.Gson
-import com.like.retrofit.common.factory.LiveDataCallAdapterFactory
-import com.like.retrofit.util.OkHttpClientFactory
 import com.like.retrofit.RequestConfig
+import com.like.retrofit.util.OkHttpClientFactory
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -25,8 +24,6 @@ class CommonRetrofit {
             .baseUrl(requestConfig.baseUrl)
             .addConverterFactory(ScalarsConverterFactory.create())// 处理String和8种基本数据类型的情况。
             .addConverterFactory(GsonConverterFactory.create(gson))// 处理实体对象的情况。
-            // Retrofit事先并不知道要使用哪个CallAdapterFactory，所以她是遍历所有的CallAdapterFactory，根据目标函数的返回值类型，让每个Factory都去尝试生产一个CallAdapter，哪个成功就用哪个。
-            .addCallAdapterFactory(LiveDataCallAdapterFactory())// 支持接口返回类型转换：Call<T> 转换成 LiveData<ApiResponse<T>>
             .build()
         return this
     }
@@ -36,7 +33,8 @@ class CommonRetrofit {
      */
     @Throws(UnsupportedOperationException::class)
     inline fun <reified T> getService(): T {
-        val retrofit = mRetrofit ?: throw UnsupportedOperationException("you must call init() method first")
+        val retrofit =
+            mRetrofit ?: throw UnsupportedOperationException("you must call init() method first")
         return retrofit.create(T::class.java)
     }
 
