@@ -50,7 +50,7 @@ class DownloadRetrofit {
             this.downloadFileAbsolutePath = downloadFile.absolutePath
             this.threadCount = threadCount
         }
-
+        var startTime = System.currentTimeMillis()
         return flow {
             val retrofit = mRetrofit ?: throw UnsupportedOperationException("you must call init() method first")
 
@@ -68,6 +68,17 @@ class DownloadRetrofit {
             } else {
                 preHandleDownloadInfo.totalSize = checkParamsResult.fileLength
                 emitAll(DownloadHelper.download(retrofit, url, downloadFile, checkParamsResult.fileLength, threadCount))
+            }
+        }.filter {
+            if (it.status == DownloadInfo.Status.STATUS_RUNNING) {
+                if (System.currentTimeMillis() - startTime >= callbackInterval) {
+                    startTime = System.currentTimeMillis()
+                    true
+                } else {
+                    false
+                }
+            } else {
+                true
             }
         }.onEach {
             Log.d("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
