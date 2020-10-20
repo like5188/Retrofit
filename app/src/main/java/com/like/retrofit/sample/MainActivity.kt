@@ -177,12 +177,9 @@ class MainActivity : AppCompatActivity() {
                 callbackInterval = 100
             ).collect {
 //                if (it.throwable != null) {
-//                    Log.e(
-//                        "Logger",
-//                        "[${Thread.currentThread().name} ${Thread.currentThread().id}] ${it.throwable.getCustomNetworkMessage()}"
-//                    )
+//                    Log.e("Logger", it.throwable.getCustomNetworkMessage())
 //                } else {
-//                    Log.d("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
+//                    Log.d("Logger", it.toString())
 //                }
             }
         }
@@ -204,12 +201,9 @@ class MainActivity : AppCompatActivity() {
                 callbackInterval = 100
             ).collect {
 //                if (it.throwable != null) {
-//                    Log.e(
-//                        "Logger",
-//                        "[${Thread.currentThread().name} ${Thread.currentThread().id}] ${it.throwable.getCustomNetworkMessage()}"
-//                    )
+//                    Log.e("Logger", it.throwable.getCustomNetworkMessage())
 //                } else {
-//                    Log.d("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
+//                    Log.d("Logger", it.toString())
 //                }
             }
         }
