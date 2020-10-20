@@ -52,37 +52,41 @@ class DownloadRetrofit {
             this.downloadFileAbsolutePath = downloadFile.absolutePath
             this.threadCount = threadCount
         }
-        var startTime = 0L
+        var startTime = 0L// 用于 STATUS_RUNNING 状态的发射频率限制，便于更新UI进度。
+        var checkParamsResult: CheckParamsResult? = null
+        val retrofit = mRetrofit
         return flow {
-            val retrofit = mRetrofit ?: throw UnsupportedOperationException("you must call init() method first")
-
+            if (!checkParamsResult!!.downloaded) {// 没有下载过
+                emitAll(DownloadHelper.download(retrofit!!, url, downloadFile, checkParamsResult!!.fileLength, threadCount))
+            }
+        }.onStart {
+            retrofit ?: throw UnsupportedOperationException("you must call init() method first")
             if (deleteCache && !clearCache(downloadFile)) {// 清除缓存失败
                 throw RuntimeException("clear cache failed")
             }
-
             // 如果真正请求前的出现错误，需要单独处理，避免error不能传达到用户。
-            val checkParamsResult = checkDownloadParams(retrofit, url, downloadFile, threadCount, callbackInterval)
-            if (checkParamsResult.downloaded) {// 已经下载过
-                preHandleDownloadInfo.totalSize = downloadFile.length()
-                preHandleDownloadInfo.status = DownloadInfo.Status.STATUS_SUCCESSFUL
-                preHandleDownloadInfo.throwable = null
-                emit(preHandleDownloadInfo)
-            } else {
-                preHandleDownloadInfo.totalSize = checkParamsResult.fileLength
-                emitAll(DownloadHelper.download(retrofit, url, downloadFile, checkParamsResult.fileLength, threadCount))
+            checkParamsResult = checkDownloadParams(retrofit, url, downloadFile, threadCount, callbackInterval).apply {
+                preHandleDownloadInfo.totalSize = this.fileLength
             }
-        }.onStart {
             startTime = System.currentTimeMillis()
+            Log.v("Logger", "开始下载：[${Thread.currentThread().name} ${Thread.currentThread().id}] $preHandleDownloadInfo")
         }.filter {
             it.status == DownloadInfo.Status.STATUS_RUNNING && System.currentTimeMillis() - startTime >= callbackInterval
         }.onEach {
             startTime = System.currentTimeMillis()
-            Log.d("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
+            Log.d("Logger", "正在下载：[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
         }.catch { throwable ->
             preHandleDownloadInfo.status = DownloadInfo.Status.STATUS_FAILED
             preHandleDownloadInfo.throwable = throwable
             emit(preHandleDownloadInfo)
-            Log.e("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] ${throwable.getCustomNetworkMessage()}")
+            Log.e("Logger", "下载失败：[${Thread.currentThread().name} ${Thread.currentThread().id}] ${throwable.getCustomNetworkMessage()}")
+        }.onCompletion {
+            if (it == null) {
+                preHandleDownloadInfo.status = DownloadInfo.Status.STATUS_SUCCESSFUL
+                preHandleDownloadInfo.throwable = null
+                emit(preHandleDownloadInfo)
+                Log.i("Logger", "下载成功：[${Thread.currentThread().name} ${Thread.currentThread().id}] $preHandleDownloadInfo")
+            }
         }.flowOn(Dispatchers.IO)
 
     }

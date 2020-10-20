@@ -175,7 +175,16 @@ class MainActivity : AppCompatActivity() {
                 File(cacheDir, "a.apk"),
                 deleteCache = true,
                 callbackInterval = 100
-            ).collect()
+            ).collect {
+//                if (it.throwable != null) {
+//                    Log.e(
+//                        "Logger",
+//                        "[${Thread.currentThread().name} ${Thread.currentThread().id}] ${it.throwable.getCustomNetworkMessage()}"
+//                    )
+//                } else {
+//                    Log.i("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
+//                }
+            }
         }
     }
 
@@ -193,7 +202,16 @@ class MainActivity : AppCompatActivity() {
                 Runtime.getRuntime().availableProcessors(),
                 deleteCache = true,
                 callbackInterval = 100
-            ).collect()
+            ).collect {
+//                if (it.throwable != null) {
+//                    Log.e(
+//                        "Logger",
+//                        "[${Thread.currentThread().name} ${Thread.currentThread().id}] ${it.throwable.getCustomNetworkMessage()}"
+//                    )
+//                } else {
+//                    Log.i("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
+//                }
+            }
         }
     }
 
