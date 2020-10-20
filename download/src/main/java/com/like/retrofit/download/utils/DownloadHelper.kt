@@ -3,10 +3,7 @@ package com.like.retrofit.download.utils
 import android.util.Log
 import com.like.retrofit.download.model.DownloadInfo
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.combineTransform
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import okhttp3.ResponseBody
 import retrofit2.Retrofit
 import java.io.File
@@ -25,14 +22,8 @@ object DownloadHelper {
         return if (threadCount == 1) {
             download(splitFileInfos[0], retrofit, url, threadCount)
         } else {
-            val flows = mutableListOf<Flow<DownloadInfo>>()
-            splitFileInfos.forEach { splitFileInfo ->
-                flows.add(download(splitFileInfo, retrofit, url, threadCount))
-            }
-            combineTransform(flows) { downloadInfoArray ->
-                downloadInfoArray.forEach {
-                    emit(it)
-                }
+            splitFileInfos.asFlow().flatMapMerge {
+                download(it, retrofit, url, threadCount)
             }
         }
     }
@@ -71,7 +62,7 @@ object DownloadHelper {
             downloadInfo.status = DownloadInfo.Status.STATUS_FAILED
             downloadInfo.throwable = RuntimeException("下载失败：code=${response.code()}")
         }
-        Log.v("Logger111", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $downloadInfo")
+        Log.v("Logger111", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $splitFileInfo $downloadInfo")
         emit(downloadInfo)
     }
 
