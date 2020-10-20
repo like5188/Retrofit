@@ -1,11 +1,14 @@
 package com.like.retrofit.download
 
+import android.Manifest
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import com.like.retrofit.RequestConfig
 import com.like.retrofit.download.factory.GetContentLengthConverterFactory
 import com.like.retrofit.download.model.DownloadInfo
 import com.like.retrofit.download.utils.DownloadApi
 import com.like.retrofit.download.utils.DownloadHelper
+import com.like.retrofit.download.utils.merge
 import com.like.retrofit.util.OkHttpClientFactory
 import com.like.retrofit.util.getCustomNetworkMessage
 import kotlinx.coroutines.Dispatchers
@@ -38,6 +41,7 @@ class DownloadRetrofit {
      * @param deleteCache       下载之前是否删除已经下载的文件缓存，默认为false
      * @param callbackInterval  数据的发送频率限制，防止下载时发送数据过快，默认200毫秒
      */
+    @RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     @OptIn(ExperimentalCoroutinesApi::class)
     fun download(
         url: String,
@@ -76,18 +80,22 @@ class DownloadRetrofit {
         }.onEach {
             startTime = System.currentTimeMillis()
             Log.d("Logger", "正在下载：[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
-        }.catch { throwable ->
-            preHandleDownloadInfo.status = DownloadInfo.Status.STATUS_FAILED
-            preHandleDownloadInfo.throwable = throwable
-            emit(preHandleDownloadInfo)
-            Log.e("Logger", "下载失败：[${Thread.currentThread().name} ${Thread.currentThread().id}] ${throwable.getCustomNetworkMessage()}")
-        }.onCompletion {
-            if (it == null) {
+        }.onCompletion { throwable ->
+            if (throwable == null) {// 成功完成
+                // 合并文件，并删除子文件
+                (1..preHandleDownloadInfo.threadCount)
+                    .map { File("${preHandleDownloadInfo.downloadFileAbsolutePath}.$it") }
+                    .merge(File(preHandleDownloadInfo.downloadFileAbsolutePath), true)
                 preHandleDownloadInfo.status = DownloadInfo.Status.STATUS_SUCCESSFUL
                 preHandleDownloadInfo.throwable = null
                 emit(preHandleDownloadInfo)
                 Log.i("Logger", "下载成功：[${Thread.currentThread().name} ${Thread.currentThread().id}] $preHandleDownloadInfo")
             }
+        }.catch { throwable ->
+            preHandleDownloadInfo.status = DownloadInfo.Status.STATUS_FAILED
+            preHandleDownloadInfo.throwable = throwable
+            emit(preHandleDownloadInfo)
+            Log.e("Logger", "下载失败：[${Thread.currentThread().name} ${Thread.currentThread().id}] ${throwable.getCustomNetworkMessage()}")
         }.flowOn(Dispatchers.IO)
 
     }

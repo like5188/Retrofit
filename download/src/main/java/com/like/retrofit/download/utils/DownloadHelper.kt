@@ -82,7 +82,6 @@ object DownloadHelper {
             }
     }
 
-
     /**
      * 根据 threadCount 来分割文件进行下载
      */
