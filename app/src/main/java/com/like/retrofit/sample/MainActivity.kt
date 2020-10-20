@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity() {
 //                        "[${Thread.currentThread().name} ${Thread.currentThread().id}] ${it.throwable.getCustomNetworkMessage()}"
 //                    )
 //                } else {
-//                    Log.i("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
+//                    Log.d("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
 //                }
             }
         }
@@ -209,7 +209,7 @@ class MainActivity : AppCompatActivity() {
 //                        "[${Thread.currentThread().name} ${Thread.currentThread().id}] ${it.throwable.getCustomNetworkMessage()}"
 //                    )
 //                } else {
-//                    Log.i("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
+//                    Log.d("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
 //                }
             }
         }
