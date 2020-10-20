@@ -17,7 +17,7 @@ object DownloadHelper {
         fileLength: Long,
         threadCount: Int
     ): Flow<DownloadInfo> {
-        val splitFileInfos = downloadFile.split(fileLength, threadCount)
+        val splitFileInfos = downloadFile.preSplit(fileLength, threadCount)
         return if (threadCount == 1) {
             download(splitFileInfos[0], retrofit, url, threadCount)
         } else {
@@ -80,88 +80,6 @@ object DownloadHelper {
                     bytesRead = inputStream.read(buffer)
                 }
             }
-    }
-
-    /**
-     * 根据 threadCount 来分割文件进行下载
-     */
-    private fun File.split(
-        fileLength: Long,
-        threadCount: Int
-    ): List<SplitFileInfo> {
-        val result = mutableListOf<SplitFileInfo>()
-        // Range:(unit=first byte pos)-[last byte pos]，其中 first byte pos 从0开始
-        when {
-            threadCount == 1 -> {
-                result.add(
-                    SplitFileInfo(
-                        this,
-                        0L,
-                        fileLength - 1
-                    )
-                )
-            }
-            threadCount > 1 -> {
-                // 每个子文件的大小。最后一个子文件的大小<=blockSize
-                val blockSize = if (fileLength % threadCount == 0L) {
-                    fileLength / threadCount
-                } else {
-                    fileLength / threadCount + 1
-                }
-                for (i in (1..threadCount)) {
-                    result.add(
-                        SplitFileInfo(
-                            File("${this.absolutePath}.$i"),
-                            blockSize * (i - 1),
-                            if (i == threadCount) {
-                                fileLength - 1
-                            } else {
-                                blockSize * i.toLong() - 1
-                            }
-                        )
-                    )
-                }
-            }
-        }
-        return result
-    }
-
-    /**
-     * 按线程数分割的文件信息
-     *
-     * @param file  分割的文件
-     * @param first 本文件数据在分割前文件的起点位置
-     * @param to    本次下载的终点位置
-     */
-    private class SplitFileInfo(private val file: File, private val first: Long, val to: Long) {
-        /**
-         * 本文件的路径
-         */
-        val filePath = file.absolutePath ?: ""
-
-        /**
-         * 本文件已经缓存的大小
-         */
-        private val cachedSize = if (file.exists()) {
-            file.length()
-        } else {
-            0
-        }
-
-        /**
-         * 本次下载的起点位置
-         */
-        val from = first + cachedSize
-
-        /**
-         * 本文件的总大小
-         */
-        val totalSize = to - first + 1
-
-        override fun toString(): String {
-            return "SplitFileInfo(filePath='$filePath', first=$first, cachedSize=$cachedSize, from=$from, to=$to, totalSize=$totalSize)"
-        }
-
     }
 
 }
