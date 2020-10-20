@@ -71,6 +71,7 @@ class DownloadRetrofit {
             startTime = System.currentTimeMillis()
             Log.v("Logger", "开始下载：[${Thread.currentThread().name} ${Thread.currentThread().id}] $preHandleDownloadInfo")
         }.filter {
+            // STATUS_RUNNING 状态的发射频率限制
             it.status == DownloadInfo.Status.STATUS_RUNNING && System.currentTimeMillis() - startTime >= callbackInterval
         }.onEach {
             startTime = System.currentTimeMillis()
