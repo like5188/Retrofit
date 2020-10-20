@@ -46,7 +46,7 @@ object DownloadHelper {
         if (response.isSuccessful) {
             val body = response.body()
             if (body == null || response.code() == 204) {// 204 No content，表示请求成功，但没有资源可返回。
-                throw RuntimeException("ResponseBody为null 或者 code=204")
+                throw RuntimeException("body is null or response code is 204")
             } else {
                 // downloadInfo.totalSize <= 0说明range的to比from小。
                 if (downloadInfo.cachedSize < downloadInfo.totalSize) {
