@@ -7,6 +7,20 @@ import java.io.File
 import java.io.RandomAccessFile
 
 /**
+ * 清除缓存的下载文件。如果是单协程下载，就是清除 File 本身；如果是多协程下载，就是清除 File 本身及其子文件。
+ */
+internal fun File.clearDownloadCaches(): Boolean {
+    this.parentFile?.walkTopDown()?.iterator()?.forEach {
+        if (it.absolutePath.contains(this.absolutePath)) {
+            if (!it.delete()) {
+                return false
+            }
+        }
+    }
+    return true
+}
+
+/**
  * 如果file不存在，则创建。
  */
 @SuppressLint("MissingPermission")

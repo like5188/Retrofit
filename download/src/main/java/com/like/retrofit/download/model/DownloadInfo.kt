@@ -57,7 +57,7 @@ class DownloadInfo {
     var url: String = ""
 
     /**
-     * 子线程数量。
+     * 分成几个子文件进行下载
      */
     var threadCount: Int = 1
         set(value) {
