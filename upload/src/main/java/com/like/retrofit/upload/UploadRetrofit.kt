@@ -1,11 +1,15 @@
 package com.like.retrofit.upload
 
-import androidx.lifecycle.MutableLiveData
 import com.like.retrofit.RequestConfig
 import com.like.retrofit.upload.utils.ProgressRequestBody
 import com.like.retrofit.upload.utils.UploadApi
 import com.like.retrofit.util.OkHttpClientFactory
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -48,29 +52,45 @@ class UploadRetrofit {
      * @param fileMediaType     上传文件的类型。默认：MediaType.parse("multipart/form-data")
      * @param params            其它参数。默认：null
      * @param paramsMediaType   上传参数的类型。默认：MediaType.parse("text/plain")
+     * @param callbackInterval  数据的发送频率限制，防止发送数据过快。默认200毫秒
      */
     @Throws(Exception::class)
     suspend fun uploadFiles(
         url: String,
-        files: Map<File, MutableLiveData<Pair<Long, Long>>?>,
+        files: Map<File, (Flow<Pair<Long, Long>>) -> Unit>,
         fileKey: String = "files",
         fileMediaType: MediaType? = "multipart/form-data".toMediaTypeOrNull(),
         params: Map<String, String>? = null,
-        paramsMediaType: MediaType? = "text/plain".toMediaTypeOrNull()
+        paramsMediaType: MediaType? = "text/plain".toMediaTypeOrNull(),
+        callbackInterval: Long = 200L
     ): ResponseBody = withContext(Dispatchers.IO) {
         val retrofit = mRetrofit ?: throw UnsupportedOperationException("you must call init() method first")
         val partList: List<MultipartBody.Part> = files.map {
-            MultipartBody.Part.createFormData(
-                fileKey,
-                it.key.name,
-                ProgressRequestBody(it.key.asRequestBody(fileMediaType), it.value)
-            )
+            val body = ProgressRequestBody(it.key.asRequestBody(fileMediaType))
+            it.value(getDataFlow(body, callbackInterval))
+            MultipartBody.Part.createFormData(fileKey, it.key.name, body)
         }
         val par: Map<String, RequestBody> = params?.mapValues {
             it.value.toRequestBody(paramsMediaType)
         } ?: emptyMap()
-
         retrofit.create(UploadApi::class.java).uploadFiles(url, partList, par).await()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun getDataFlow(progressRequestBody: ProgressRequestBody, callbackInterval: Long): Flow<Pair<Long, Long>> {
+        var startTime = 0L// 用于发射频率限制，便于更新UI进度。
+        return progressRequestBody.getDataFlow()
+            .onStart {
+                startTime = System.currentTimeMillis()
+            }.filter {
+                // 发射频率限制
+                if (it.first != it.second) {// 保证完成那一次必须发射
+                    System.currentTimeMillis() - startTime >= callbackInterval
+                } else {
+                    true
+                }
+            }.onEach {
+                startTime = System.currentTimeMillis()
+            }
+    }
 }

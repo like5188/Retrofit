@@ -1,6 +1,9 @@
 package com.like.retrofit.upload.utils
 
-import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.flow.asFlow
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okio.Buffer
@@ -13,11 +16,12 @@ import okio.buffer
  *
  * Pair<Long, Long>：first为总长度，second为当前上传的进度
  */
-internal class ProgressRequestBody(
-    private val delegate: RequestBody,
-    private val progressLiveData: MutableLiveData<Pair<Long, Long>>? = null
-) : RequestBody() {
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalCoroutinesApi::class, FlowPreview::class)
+internal class ProgressRequestBody(private val delegate: RequestBody) : RequestBody() {
+    private val _controlCh = ConflatedBroadcastChannel<Pair<Long, Long>>()
     private lateinit var bufferedSink: BufferedSink
+
+    fun getDataFlow() = _controlCh.asFlow()
 
     override fun contentLength(): Long = delegate.contentLength()
 
@@ -35,7 +39,7 @@ internal class ProgressRequestBody(
                 override fun write(source: Buffer, byteCount: Long) {
                     super.write(source, byteCount)
                     bytesWritten += byteCount
-                    progressLiveData?.postValue(Pair(contentLength, bytesWritten))
+                    _controlCh.offer(Pair(contentLength, bytesWritten))
                 }
             }.buffer()
         }

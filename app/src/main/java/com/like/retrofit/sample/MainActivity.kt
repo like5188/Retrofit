@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.JsonObject
 import com.like.retrofit.download.utils.merge
@@ -148,16 +147,18 @@ class MainActivity : AppCompatActivity() {
                 lifecycleScope.launch(Dispatchers.Main) {
                     try {
                         val file = File("/storage/emulated/0/DCIM/Camera/IMG_20201020_13423806.jpg")
-                        val liveData = MutableLiveData<Pair<Long, Long>>()
-                        liveData.observe(this@MainActivity) {
-                            Log.e(TAG, "totalSize=${it.first} uploadedSize=${it.second}")
-                        }
                         val responseBody = MyApplication.mUploadRetrofit
                             .uploadFiles(
                                 "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket",
-                                mapOf(file to liveData)
+                                mapOf(file to {
+                                    launch {
+                                        it.collect {
+                                            Log.d(TAG, "totalSize=${it.first} uploadedSize=${it.second}")
+                                        }
+                                    }
+                                })
                             )
-                        Log.e(TAG, responseBody.string())
+                        Log.i(TAG, responseBody.string())
                     } catch (e: Exception) {
                         Log.e(TAG, e.message ?: "")
                     }
