@@ -60,6 +60,7 @@ class DownloadRetrofit {
         var startTime = 0L// 用于 STATUS_RUNNING 状态的发射频率限制，便于更新UI进度。
         var checkParamsResult: CheckParamsResult? = null
         val retrofit = mRetrofit
+
         return flow {
             if (!checkParamsResult!!.downloaded) {// 没有下载过
                 emitAll(DownloadHelper.download(retrofit!!, url, downloadFile, checkParamsResult!!.fileLength, threadCount))
