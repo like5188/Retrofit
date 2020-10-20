@@ -167,9 +167,11 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     fun download(view: View) {
+//        val url = "https://imtt.dd.qq.com/16891/apk/91059321573A1E1BFF5BC3235A9ABC35.apk"//大文件
+        val url = "https://imtt.dd.qq.com/16891/apk/8409D55AE4A1DB11320E466C427FD2E2.apk"//小文件
         lifecycleScope.launch(Dispatchers.Main) {
             MyApplication.mDownloadRetrofit.download(
-                "https://imtt.dd.qq.com/16891/apk/8409D55AE4A1DB11320E466C427FD2E2.apk",
+                url,
                 File(cacheDir, "a.apk"),
                 deleteCache = true,
                 callbackInterval = 100
@@ -182,9 +184,11 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     fun downloadByMultiThread(view: View) {
+//        val url = "https://imtt.dd.qq.com/16891/apk/91059321573A1E1BFF5BC3235A9ABC35.apk"//大文件
+        val url = "https://imtt.dd.qq.com/16891/apk/8409D55AE4A1DB11320E466C427FD2E2.apk"//小文件
         lifecycleScope.launch(Dispatchers.Main) {
             MyApplication.mDownloadRetrofit.download(
-                "https://imtt.dd.qq.com/16891/apk/8409D55AE4A1DB11320E466C427FD2E2.apk",
+                url,
                 File(cacheDir, "a.apk"),
                 Runtime.getRuntime().availableProcessors(),
                 deleteCache = true,
