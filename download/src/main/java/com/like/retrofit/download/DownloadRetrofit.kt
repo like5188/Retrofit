@@ -40,7 +40,7 @@ class DownloadRetrofit {
      * @param downloadFile      下载的文件缓存
      * @param threadCount       分成几个子文件进行下载。默认为1，表示不分割。
      * @param deleteCache       下载之前是否删除已经下载的文件缓存，默认为false
-     * @param callbackInterval  数据的发送频率限制，防止下载时发送数据过快，默认100毫秒
+     * @param callbackInterval  数据的发送频率限制，防止下载时发送数据过快，默认200毫秒
      */
     @RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -49,7 +49,7 @@ class DownloadRetrofit {
         downloadFile: File,
         threadCount: Int = 1,
         deleteCache: Boolean = false,
-        callbackInterval: Long = 100L
+        callbackInterval: Long = 200L
     ): Flow<DownloadInfo> {
         // preHandleDownloadInfo 用于实际下载前的一些逻辑处理
         val preHandleDownloadInfo = DownloadInfo().apply {
