@@ -32,7 +32,7 @@ class DownloadInfo {
     var totalSize: Long = 0
 
     /**
-     * 当前的下载状态
+     * 当前状态
      */
     var status = Status.STATUS_PENDING
 
@@ -42,9 +42,9 @@ class DownloadInfo {
     var throwable: Throwable? = null
 
     /**
-     * 下载文件的路径。
+     * 下载的文件的路径。
      */
-    var downloadFileAbsolutePath: String = ""
+    var absolutePath: String = ""
 
     /**
      * 下载地址
@@ -72,13 +72,13 @@ class DownloadInfo {
         get() {
             var totalCachedSize = 0L
             try {
-                if (downloadFileAbsolutePath.isNotEmpty()) {
-                    val outFile = File(downloadFileAbsolutePath)
+                if (absolutePath.isNotEmpty()) {
+                    val outFile = File(absolutePath)
                     if (!outFile.isDirectory && outFile.exists()) {
                         totalCachedSize = outFile.length()
                     } else if (threadCount > 1) {
                         for (i in (1..threadCount)) {
-                            val file = File("$downloadFileAbsolutePath.$i")
+                            val file = File("$absolutePath.$i")
                             if (!file.isDirectory && file.exists()) {
                                 totalCachedSize += file.length()
                             }

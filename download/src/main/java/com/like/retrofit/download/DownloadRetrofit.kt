@@ -52,7 +52,7 @@ class DownloadRetrofit {
         // preHandleDownloadInfo 用于实际下载前的一些逻辑处理
         val preHandleDownloadInfo = DownloadInfo().apply {
             this.url = url
-            this.downloadFileAbsolutePath = downloadFile.absolutePath
+            this.absolutePath = downloadFile.absolutePath
             this.threadCount = threadCount
         }
         var startTime = 0L// 用于 STATUS_RUNNING 状态的发射频率限制，便于更新UI进度。
@@ -92,8 +92,8 @@ class DownloadRetrofit {
             if (throwable == null) {// 成功完成
                 if (threadCount > 1) {// 多协程下载。合并文件，并删除子文件
                     (1..preHandleDownloadInfo.threadCount)
-                        .map { File("${preHandleDownloadInfo.downloadFileAbsolutePath}.$it") }
-                        .merge(File(preHandleDownloadInfo.downloadFileAbsolutePath), true)
+                        .map { File("${preHandleDownloadInfo.absolutePath}.$it") }
+                        .merge(File(preHandleDownloadInfo.absolutePath), true)
                 }
                 preHandleDownloadInfo.status = DownloadInfo.Status.STATUS_SUCCESSFUL
                 preHandleDownloadInfo.throwable = null

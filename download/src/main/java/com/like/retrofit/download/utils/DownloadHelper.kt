@@ -38,7 +38,7 @@ object DownloadHelper {
             .downloadFile(url, "bytes=${splitFileInfo.from}-${splitFileInfo.to}")
         // 处理返回数据
         val downloadInfo = DownloadInfo().also {
-            it.downloadFileAbsolutePath = splitFileInfo.filePath
+            it.absolutePath = splitFileInfo.filePath
             it.url = url
             it.threadCount = threadCount
             it.totalSize = splitFileInfo.totalSize
@@ -66,7 +66,7 @@ object DownloadHelper {
         downloadInfo: DownloadInfo,
         body: ResponseBody
     ) = body.byteStream().use { inputStream ->
-        RandomAccessFile(File(downloadInfo.downloadFileAbsolutePath), "rwd")
+        RandomAccessFile(File(downloadInfo.absolutePath), "rwd")
             .apply { seek(downloadInfo.cachedSize) }
             .use { outputStream ->
                 val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
