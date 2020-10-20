@@ -47,8 +47,7 @@ object DownloadHelper {
         if (response.isSuccessful) {
             val body = response.body()
             if (body == null || response.code() == 204) {// 204 No content，表示请求成功，但没有资源可返回。
-                downloadInfo.status = DownloadInfo.Status.STATUS_FAILED
-                downloadInfo.throwable = RuntimeException("下载失败：ResponseBody为null 或者 code=204")
+                throw RuntimeException("下载失败：ResponseBody为null 或者 code=204")
             } else {
                 // downloadInfo.totalSize <= 0说明range的to比from小。
                 if (downloadInfo.cachedSize < downloadInfo.totalSize) {
@@ -59,8 +58,7 @@ object DownloadHelper {
         } else if (response.code() == 416) {// 416表示请求的range超出范围。就表示已经下载完成了。不知道为什么，416错误有时候不能触发。难道是因为服务端不支持？
             downloadInfo.status = DownloadInfo.Status.STATUS_SUCCESSFUL
         } else {
-            downloadInfo.status = DownloadInfo.Status.STATUS_FAILED
-            downloadInfo.throwable = RuntimeException("下载失败：code=${response.code()}")
+            throw RuntimeException("下载失败：code=${response.code()}")
         }
         Log.v("Logger111", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $splitFileInfo $downloadInfo")
         emit(downloadInfo)
