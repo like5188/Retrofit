@@ -4,6 +4,7 @@ import com.like.retrofit.download.model.DownloadInfo
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import okhttp3.ResponseBody
+import retrofit2.HttpException
 import retrofit2.Retrofit
 import java.io.File
 import java.io.RandomAccessFile
@@ -54,7 +55,7 @@ object DownloadHelper {
                 }
             }
         } else if (response.code() != 416) {// 416表示请求的range超出范围。就表示已经下载完成了。不知道为什么，416错误有时候不能触发。难道是因为服务端不支持？
-            throw RuntimeException("code=${response.code()}")
+            throw HttpException(response)
         }
     }
 
