@@ -9,6 +9,7 @@ import com.like.retrofit.download.utils.DownloadHelper
 import com.like.retrofit.util.OkHttpClientFactory
 import com.like.retrofit.util.getCustomNetworkMessage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import retrofit2.Retrofit
 import java.io.File
@@ -37,6 +38,7 @@ class DownloadRetrofit {
      * @param deleteCache       下载之前是否删除已经下载的文件缓存，默认为false
      * @param callbackInterval  数据的发送频率限制，防止下载时发送数据过快，默认200毫秒
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun download(
         url: String,
         downloadFile: File,
@@ -50,7 +52,7 @@ class DownloadRetrofit {
             this.downloadFileAbsolutePath = downloadFile.absolutePath
             this.threadCount = threadCount
         }
-        var startTime = System.currentTimeMillis()
+        var startTime = 0L
         return flow {
             val retrofit = mRetrofit ?: throw UnsupportedOperationException("you must call init() method first")
 
@@ -69,18 +71,12 @@ class DownloadRetrofit {
                 preHandleDownloadInfo.totalSize = checkParamsResult.fileLength
                 emitAll(DownloadHelper.download(retrofit, url, downloadFile, checkParamsResult.fileLength, threadCount))
             }
+        }.onStart {
+            startTime = System.currentTimeMillis()
         }.filter {
-            if (it.status == DownloadInfo.Status.STATUS_RUNNING) {
-                if (System.currentTimeMillis() - startTime >= callbackInterval) {
-                    startTime = System.currentTimeMillis()
-                    true
-                } else {
-                    false
-                }
-            } else {
-                true
-            }
+            it.status == DownloadInfo.Status.STATUS_RUNNING && System.currentTimeMillis() - startTime >= callbackInterval
         }.onEach {
+            startTime = System.currentTimeMillis()
             Log.d("Logger", "[${Thread.currentThread().name} ${Thread.currentThread().id}] $it")
         }.catch { throwable ->
             preHandleDownloadInfo.status = DownloadInfo.Status.STATUS_FAILED
