@@ -173,7 +173,6 @@ class MainActivity : AppCompatActivity() {
             MyApplication.mDownloadRetrofit.download(
                 url,
                 File(cacheDir, "a.apk"),
-                deleteCache = true,
                 callbackInterval = 100
             ).collect {
 //                if (it.throwable != null) {
@@ -197,7 +196,6 @@ class MainActivity : AppCompatActivity() {
                 url,
                 File(cacheDir, "a.apk"),
                 Runtime.getRuntime().availableProcessors(),
-                deleteCache = true,
                 callbackInterval = 100
             ).collect {
 //                if (it.throwable != null) {
