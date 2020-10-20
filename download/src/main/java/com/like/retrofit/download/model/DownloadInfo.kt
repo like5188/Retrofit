@@ -16,11 +16,6 @@ class DownloadInfo {
         STATUS_RUNNING,
 
         /**
-         * when the download is waiting to retry or resume.
-         */
-        STATUS_PAUSED,
-
-        /**
          * when the download has successfully completed.
          */
         STATUS_SUCCESSFUL,
