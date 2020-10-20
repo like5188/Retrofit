@@ -29,7 +29,7 @@ class MyApplication : Application() {
         val headerInterceptor = object : HeaderInterceptor() {
             override fun getHeaderMap(): Map<String, String> {
                 return mapOf(
-                    "X-Access-Token" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDMyNTM3MDIsInVzZXJuYW1lIjoidGVzdDMxIn0.-BSc9rcJWS9LY5datNIum2OaJKtpdVv07wuzl4qqy2s"
+                    "X-Access-Token" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDMyNzU1NjMsInVzZXJuYW1lIjoidGVzdDMxIn0.gRSZGiY-AeroNN72K61tVuF0hNJEEmc0xiBU_vDbQVw"
                 )
             }
         }
