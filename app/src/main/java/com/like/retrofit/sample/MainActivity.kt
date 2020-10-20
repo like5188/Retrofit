@@ -11,8 +11,11 @@ import com.google.gson.JsonObject
 import com.like.retrofit.download.utils.merge
 import com.like.retrofit.download.utils.split
 import com.like.retrofit.util.getCustomNetworkMessage
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import java.io.File
 
@@ -173,6 +176,7 @@ class MainActivity : AppCompatActivity() {
             MyApplication.mDownloadRetrofit.download(
                 url,
                 File(cacheDir, "a.apk"),
+                deleteCache = true,
                 callbackInterval = 200
             ).collect {
                 if (it.throwable != null) {
@@ -197,6 +201,7 @@ class MainActivity : AppCompatActivity() {
                 url,
                 File(cacheDir, "a.apk"),
                 Runtime.getRuntime().availableProcessors(),
+                deleteCache = true,
                 callbackInterval = 200
             ).collect {
                 if (it.throwable != null) {
