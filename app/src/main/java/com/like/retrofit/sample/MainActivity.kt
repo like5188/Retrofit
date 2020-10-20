@@ -1,9 +1,11 @@
 package com.like.retrofit.sample
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
@@ -15,8 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import retrofit2.HttpException
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -142,28 +142,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("MissingPermission")
     fun uploadFiles(view: View) {
-        lifecycleScope.launch(Dispatchers.Main) {
-            try {
-                val response = MyApplication.mUploadRetrofit
-                    .uploadFiles("url", mapOf(File("../settings.gradle") to MutableLiveData()))
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body == null || response.code() == 204) {
-                        Log.e(TAG, "body is null or response code is 204")
-                    } else {
-                        withContext(Dispatchers.IO) {
-                            Log.e(TAG, body.string())
-                        }
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            if (it) {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        val file = File("/storage/emulated/0/DCIM/Camera/IMG_20201020_13423806.jpg")
+                        val responseBody = MyApplication.mUploadRetrofit
+                            .uploadFiles(
+                                "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket",
+                                mapOf(file to MutableLiveData())
+                            )
+                        Log.e(TAG, responseBody.string())
+                    } catch (e: Exception) {
+                        Log.e(TAG, e.message ?: "")
                     }
-                } else {
-                    Log.e(TAG, HttpException(response).getCustomNetworkMessage())
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, e.getCustomNetworkMessage())
             }
-        }
+        }.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
     }
 
     var downloadJob: Job? = null

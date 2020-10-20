@@ -10,11 +10,11 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
+import okhttp3.logging.HttpLoggingInterceptor
 import okio.Buffer
 import okio.BufferedSink
 import okio.ForwardingSink
 import okio.buffer
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
@@ -27,7 +27,11 @@ class UploadRetrofit {
 
     fun init(requestConfig: RequestConfig): UploadRetrofit {
         mRetrofit = Retrofit.Builder()
-            .client(OkHttpClientFactory.createOkHttpClientBuilder(requestConfig).build())
+            .client(
+                OkHttpClientFactory.createOkHttpClientBuilder(requestConfig)
+                    .addNetworkInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))// 添加日志打印
+                    .build()
+            )
             .baseUrl(requestConfig.baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -45,14 +49,14 @@ class UploadRetrofit {
      * @param paramsMediaType   上传参数的类型。默认：MediaType.parse("text/plain")
      */
     @Throws(UnsupportedOperationException::class)
-    fun uploadFiles(
+    suspend fun uploadFiles(
         url: String,
         files: Map<File, MutableLiveData<Pair<Long, Long>>?>,
         fileKey: String = "files",
         fileMediaType: MediaType? = "multipart/form-data".toMediaTypeOrNull(),
         params: Map<String, String>? = null,
         paramsMediaType: MediaType? = "text/plain".toMediaTypeOrNull()
-    ): Response<ResponseBody> {
+    ): ResponseBody {
         val retrofit = mRetrofit ?: throw UnsupportedOperationException("you must call init() method first")
         val partList: List<MultipartBody.Part> = files.map {
             MultipartBody.Part.createFormData(
