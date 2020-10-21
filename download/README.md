@@ -11,27 +11,16 @@
 
 2、下载文件。
 ```java
-    private var liveData: DownloadLiveData? = null
-    GlobalScope.launch(Main) {
-        val file = File(cacheDir, "com.snda.wifilocating_181219.apk")
-        liveData = mDownloadRetrofit.download(
-            "http://shouji.360tpcdn.com/181222/f31d56919d5dfbdb479a8e5746a75146/com.snda.wifilocating_181219.apk",
-            file,
-            Runtime.getRuntime().availableProcessors()
-        )
-        liveData?.observe(this@MainActivity, Observer<DownloadInfo> { downloadInfo ->
-            if (downloadInfo?.throwable != null) {
-                Log.e(TAG, downloadInfo.throwable.getCustomNetworkMessage())
+    var downloadJob: Job? = null
+    downloadJob = lifecycleScope.launch(Dispatchers.Main) {
+        MyApplication.mDownloadRetrofit.download(url, File(cacheDir, "a.apk")).collect {
+            if (it.throwable != null) {
+                Log.e("Logger", it.throwable.getCustomNetworkMessage())
             } else {
-                Log.d(
-                    "MainActivity",
-                    "[${Thread.currentThread().name} ${Thread.currentThread().id}] $downloadInfo"
-                )
+                Log.d("Logger", it.toString())
             }
-        })
+        }
     }
-    暂停：
-    liveData?.pause()
     取消：
-    liveData?.cancel()
+    downloadJob?.cancel()
 ```

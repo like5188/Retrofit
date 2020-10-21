@@ -11,23 +11,23 @@
 
 2、上传文件。
 ```java
-    GlobalScope.launch(Main) {
-        when (val apiResponse = mUploadRetrofit.uploadFiles("url", mapOf(File("../settings.gradle") to MutableLiveData()))
-            .awaitApiResponse()) {
-            is ApiEmptyResponse -> {
-                Log.d(TAG, "2 ${Thread.currentThread().name}")
-                Log.e(TAG, apiResponse.toString())
-            }
-            is ApiSuccessResponse -> {
-                Log.d(TAG, "3 ${Thread.currentThread().name}")
-                Log.i(TAG, apiResponse.body.toString())
-            }
-            is ApiErrorResponse -> {
-                Log.d(TAG, "4 ${Thread.currentThread().name}")
-                Log.e(TAG, apiResponse.throwable.getCustomNetworkMessage())
-            }
-            else -> {
-            }
+    lifecycleScope.launch(Dispatchers.Main) {
+        try {
+            val file = File("/storage/emulated/0/DCIM/Camera/IMG_20201020_13423806.jpg")
+            val result = MyApplication.mUploadRetrofit
+                .uploadFiles(
+                    "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket",
+                    mapOf(file to {
+                        launch {
+                            it.collect {
+                                Log.d(TAG, "${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}")
+                            }
+                        }
+                    })
+                )
+            Log.i(TAG, result)
+        } catch (e: Exception) {
+            Log.e(TAG, e.message ?: "")
         }
     }
 ```
