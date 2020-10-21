@@ -47,7 +47,7 @@ class DownloadRetrofit {
      */
     @RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun download(
+    fun downloadFile(
         url: String,
         downloadFile: File,
         threadCount: Int = 1,
@@ -66,7 +66,7 @@ class DownloadRetrofit {
 
         return flow {
             if (!checkParamsResult!!.downloaded) {// 没有下载过
-                emitAll(DownloadHelper.download(retrofit!!, url, downloadFile, checkParamsResult!!.fileLength, threadCount))
+                emitAll(DownloadHelper.downloadFile(retrofit!!, url, downloadFile, checkParamsResult!!.fileLength, threadCount))
             }
         }.onStart {
             retrofit ?: throw UnsupportedOperationException("you must call init() method first")
@@ -100,7 +100,7 @@ class DownloadRetrofit {
                         .map { File("${preHandleDownloadInfo.absolutePath}.$it") }
                         .merge(File(preHandleDownloadInfo.absolutePath), true)
                 }
-                preHandleDownloadInfo.status = DownloadInfo.Status.STATUS_SUCCESSFUL
+                preHandleDownloadInfo.status = DownloadInfo.Status.STATUS_SUCCESS
                 preHandleDownloadInfo.throwable = null
                 emit(preHandleDownloadInfo)
             }

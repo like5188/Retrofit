@@ -53,7 +53,7 @@ class UploadRetrofit {
     @Throws(Exception::class)
     suspend fun uploadFiles(
         url: String,
-        files: Map<File, (Flow<Pair<Long, Long>>) -> Unit>,
+        files: Map<File, ((Flow<Pair<Long, Long>>) -> Unit)?>,
         fileKey: String = "files",
         fileMediaType: MediaType? = "multipart/form-data".toMediaTypeOrNull(),
         params: Map<String, String>? = null,
@@ -63,7 +63,7 @@ class UploadRetrofit {
         val retrofit = mRetrofit ?: throw UnsupportedOperationException("you must call init() method first")
         val partList: List<MultipartBody.Part> = files.map {
             val body = ProgressRequestBody(it.key.asRequestBody(fileMediaType))
-            it.value(getDataFlow(body, callbackInterval))
+            it.value?.invoke(getDataFlow(body, callbackInterval))
             MultipartBody.Part.createFormData(fileKey, it.key.name, body)
         }
         val par: Map<String, RequestBody> = params?.mapValues {

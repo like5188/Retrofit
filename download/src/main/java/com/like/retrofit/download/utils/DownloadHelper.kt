@@ -11,7 +11,7 @@ import java.io.RandomAccessFile
 
 object DownloadHelper {
     @OptIn(FlowPreview::class)
-    internal fun download(
+    internal fun downloadFile(
         retrofit: Retrofit,
         url: String,
         downloadFile: File,

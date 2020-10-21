@@ -174,7 +174,7 @@ class MainActivity : AppCompatActivity() {
 //        val url = "https://imtt.dd.qq.com/16891/apk/91059321573A1E1BFF5BC3235A9ABC35.apk"//大文件
         val url = "https://imtt.dd.qq.com/16891/apk/8409D55AE4A1DB11320E466C427FD2E2.apk"//小文件
         downloadJob = lifecycleScope.launch(Dispatchers.Main) {
-            MyApplication.mDownloadRetrofit.download(
+            MyApplication.mDownloadRetrofit.downloadFile(
                 url,
                 File(cacheDir, "a.apk"),
                 deleteCache = true,
@@ -198,7 +198,7 @@ class MainActivity : AppCompatActivity() {
 //        val url = "https://imtt.dd.qq.com/16891/apk/91059321573A1E1BFF5BC3235A9ABC35.apk"//大文件
         val url = "https://imtt.dd.qq.com/16891/apk/8409D55AE4A1DB11320E466C427FD2E2.apk"//小文件
         downloadJob = lifecycleScope.launch(Dispatchers.Main) {
-            MyApplication.mDownloadRetrofit.download(
+            MyApplication.mDownloadRetrofit.downloadFile(
                 url,
                 File(cacheDir, "a.apk"),
                 Runtime.getRuntime().availableProcessors(),

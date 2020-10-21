@@ -18,7 +18,7 @@ class DownloadInfo {
         /**
          * when the download has successfully completed.
          */
-        STATUS_SUCCESSFUL,
+        STATUS_SUCCESS,
 
         /**
          * when the download has failed (and will not be retried).
