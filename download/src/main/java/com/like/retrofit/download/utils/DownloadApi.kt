@@ -46,8 +46,8 @@ import retrofit2.http.Url
 
 /** 返回值类型：
  * 1、Call<ResponseBody>：retrofit本身支持的。
- * 2、Flowable<ResponseBody>：添加 [retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory]后，支持把 Call<ResponseBody> 中的 Call 转换成 RxJava2 中的指定类型。
- * 3、LiveData<ApiResponse<ResponseBody>> 或者 CallLiveData<ApiResponse<ResponseBody>>：添加 [com.like.retrofit.common.factory.LiveDataCallAdapterFactory]后，支持把 Call<ResponseBody> 中的 Call 转换成 LiveDataCallAdapterFactory 中的指定类型。
+// * 2、Flowable<ResponseBody>：添加 [retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory]后，支持把 Call<ResponseBody> 中的 Call 转换成 RxJava2 中的指定类型。
+// * 3、LiveData<ApiResponse<ResponseBody>> 或者 CallLiveData<ApiResponse<ResponseBody>>：添加 [com.like.retrofit.common.factory.LiveDataCallAdapterFactory]后，支持把 Call<ResponseBody> 中的 Call 转换成 LiveDataCallAdapterFactory 中的指定类型。
  * 4、ResponseBody：当 fun 添加了 suspend 关键字后。其实前面3种相当于回调，这种相当于使用协程直接返回结果。
  *
  * 注意：如果添加了 [Converter.Factory]，那么可以把上面几种情况种的 ResponseBody 转换成 转换器种指定的类型。
