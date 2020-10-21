@@ -147,18 +147,18 @@ class MainActivity : AppCompatActivity() {
                 lifecycleScope.launch(Dispatchers.Main) {
                     try {
                         val file = File("/storage/emulated/0/DCIM/Camera/IMG_20201020_13423806.jpg")
-                        val responseBody = MyApplication.mUploadRetrofit
+                        val result = MyApplication.mUploadRetrofit
                             .uploadFiles(
                                 "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket",
                                 mapOf(file to {
                                     launch {
                                         it.collect {
-                                            Log.d(TAG, "totalSize=${it.first} uploadedSize=${it.second}")
+                                            Log.d(TAG, "${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}")
                                         }
                                     }
                                 })
                             )
-                        Log.i(TAG, responseBody.string())
+                        Log.i(TAG, result)
                     } catch (e: Exception) {
                         Log.e(TAG, e.message ?: "")
                     }

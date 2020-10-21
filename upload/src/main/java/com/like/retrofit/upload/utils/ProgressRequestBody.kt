@@ -21,7 +21,7 @@ internal class ProgressRequestBody(private val delegate: RequestBody) : RequestB
     private val _controlCh = ConflatedBroadcastChannel<Pair<Long, Long>>()
     private lateinit var bufferedSink: BufferedSink
 
-    fun getDataFlow() = _controlCh.asFlow()
+    internal fun getDataFlow() = _controlCh.asFlow()
 
     override fun contentLength(): Long = delegate.contentLength()
 

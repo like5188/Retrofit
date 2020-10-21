@@ -13,6 +13,7 @@ import com.like.retrofit.util.OkHttpClientFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import java.io.File
 
@@ -24,7 +25,11 @@ class DownloadRetrofit {
 
     fun init(requestConfig: RequestConfig): DownloadRetrofit {
         mRetrofit = Retrofit.Builder()
-            .client(OkHttpClientFactory.createOkHttpClientBuilder(requestConfig).build())
+            .client(
+                OkHttpClientFactory.createOkHttpClientBuilder(requestConfig)
+                    .addNetworkInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))// 添加日志打印
+                    .build()
+            )
             .baseUrl(requestConfig.baseUrl)
             .addConverterFactory(GetContentLengthConverterFactory())// 把返回的ResponseBody转换成long型的contentLength
             .build()

@@ -6,10 +6,7 @@ import com.like.retrofit.upload.utils.UploadApi
 import com.like.retrofit.util.OkHttpClientFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -17,11 +14,10 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.await
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.io.File
 
 /**
@@ -38,7 +34,7 @@ class UploadRetrofit {
                     .build()
             )
             .baseUrl(requestConfig.baseUrl)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(ScalarsConverterFactory.create())// 处理String和8种基本数据类型的情况。
             .build()
         return this
     }
@@ -63,7 +59,7 @@ class UploadRetrofit {
         params: Map<String, String>? = null,
         paramsMediaType: MediaType? = "text/plain".toMediaTypeOrNull(),
         callbackInterval: Long = 200L
-    ): ResponseBody = withContext(Dispatchers.IO) {
+    ): String {
         val retrofit = mRetrofit ?: throw UnsupportedOperationException("you must call init() method first")
         val partList: List<MultipartBody.Part> = files.map {
             val body = ProgressRequestBody(it.key.asRequestBody(fileMediaType))
@@ -73,7 +69,9 @@ class UploadRetrofit {
         val par: Map<String, RequestBody> = params?.mapValues {
             it.value.toRequestBody(paramsMediaType)
         } ?: emptyMap()
-        retrofit.create(UploadApi::class.java).uploadFiles(url, partList, par).await()
+        return withContext(Dispatchers.IO) {
+            retrofit.create(UploadApi::class.java).uploadFiles(url, partList, par).await()
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -91,6 +89,6 @@ class UploadRetrofit {
                 }
             }.onEach {
                 startTime = System.currentTimeMillis()
-            }
+            }.flowOn(Dispatchers.IO)
     }
 }
