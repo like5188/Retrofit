@@ -6,7 +6,7 @@
 
 ## 功能介绍
 
-1、用 Retrofit2 + Kotlin + coroutines + RxJava2 + LiveData 封装的库。
+1、用 Retrofit2 + Kotlin + coroutines 封装的库。
 
 2、提供了普通网络请求、下载、上传功能。具体功能请查看相关模块。
 
