@@ -29,7 +29,7 @@ class MyApplication : Application() {
         val headerInterceptor = object : HeaderInterceptor() {
             override fun getHeaderMap(): Map<String, String> {
                 return mapOf(
-                    "X-Access-Token" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDMyNzU1NjMsInVzZXJuYW1lIjoidGVzdDMxIn0.gRSZGiY-AeroNN72K61tVuF0hNJEEmc0xiBU_vDbQVw"
+                    "X-Access-Token" to "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDMzNjM3NDUsInVzZXJuYW1lIjoidGVzdDMxIn0.IBGX2jamHRJ5_sRTT0I2aILrrpsSWAqsNU1WedUFetA"
                 )
             }
         }
@@ -57,7 +57,12 @@ class MyApplication : Application() {
             )
         )
 
-        mDownloadRetrofit.init(RequestConfig(this@MyApplication))
+        mDownloadRetrofit.init(
+            RequestConfig(
+                application = this@MyApplication,
+                interceptors = listOf(headerInterceptor)
+            )
+        )
 
         mUploadRetrofit.init(
             RequestConfig(
