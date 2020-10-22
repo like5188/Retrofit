@@ -87,6 +87,14 @@ internal class SplitFileInfo(private val file: File, private val first: Long, va
      */
     val totalSize = to - first + 1
 
+    @Throws(RuntimeException::class)
+    fun getRangeHeader(): String {
+        if (from > to) {
+            throw RuntimeException("range is invalid.(${from}-${to})")
+        }
+        return "bytes=${from}-${to}"
+    }
+
     override fun toString(): String {
         return "SplitFileInfo(filePath='$filePath', first=$first, cachedSize=$cachedSize, from=$from, to=$to, totalSize=$totalSize)"
     }

@@ -36,24 +36,20 @@ object DownloadHelper {
     ) = flow {
         // 开始下载
         val response = retrofit.create(DownloadApi::class.java)
-            .downloadFile(url, "bytes=${splitFileInfo.from}-${splitFileInfo.to}")
+            .downloadFile(url, splitFileInfo.getRangeHeader())
         // 处理返回数据
-        val downloadInfo = DownloadInfo().also {
-            it.absolutePath = splitFileInfo.filePath
-            it.url = url
-            it.threadCount = threadCount
-            it.totalSize = splitFileInfo.totalSize
-        }
         if (response.isSuccessful) {
-            val body = response.body()
-            if (body == null || response.code() == 204) {// 204 No content，表示请求成功，但没有资源可返回。
-                throw RuntimeException("body is null or response code is 204")
-            } else {
-                // downloadInfo.totalSize <= 0说明range的to比from小。
-                if (downloadInfo.cachedSize < downloadInfo.totalSize) {
-                    saveBodyToFile(this, downloadInfo, body)
-                }
+            if (response.code() == 204) {// 204 No content，表示请求成功，但没有资源可返回。
+                throw RuntimeException("response code is 204")
             }
+            val responseBody = response.body() ?: throw RuntimeException("responseBody is null")
+            val downloadInfo = DownloadInfo().also {
+                it.absolutePath = splitFileInfo.filePath
+                it.url = url
+                it.threadCount = threadCount
+                it.totalSize = splitFileInfo.totalSize
+            }
+            saveBodyToFile(this, downloadInfo, responseBody)
         } else if (response.code() != 416) {// 416表示请求的range超出范围。就表示已经下载完成了。不知道为什么，416错误有时候不能触发。难道是因为服务端不支持？
             throw HttpException(response)
         }
