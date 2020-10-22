@@ -44,9 +44,9 @@ object DownloadHelper {
             }
             val responseBody = response.body() ?: throw RuntimeException("responseBody is null")
             val downloadInfo = DownloadInfo().also {
-                it.absolutePath = splitFileInfo.filePath
                 it.url = url
                 it.threadCount = threadCount
+                it.absolutePath = splitFileInfo.filePath
                 it.totalSize = splitFileInfo.totalSize
             }
             saveBodyToFile(this, downloadInfo, responseBody)
