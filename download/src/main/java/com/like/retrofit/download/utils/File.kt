@@ -89,6 +89,12 @@ internal class SplitFileInfo(private val file: File, private val first: Long, va
 
     @Throws(RuntimeException::class)
     fun getRangeHeader(): String {
+        if (from < 0) {
+            throw RuntimeException("from is invalid.")
+        }
+        if (to < 0) {
+            throw RuntimeException("to is invalid.")
+        }
         if (from > to) {
             throw RuntimeException("range is invalid.(${from}-${to})")
         }
