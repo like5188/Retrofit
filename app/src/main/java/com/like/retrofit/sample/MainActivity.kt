@@ -141,10 +141,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    var uploadJob: Job? = null
     fun uploadFiles(view: View) {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             if (it) {
-                lifecycleScope.launch(Dispatchers.Main) {
+                uploadJob = lifecycleScope.launch(Dispatchers.Main) {
                     try {
                         val file = File("/storage/emulated/0/DCIM/Camera/IMG_20201020_13423806.jpg")
                         val result = MyApplication.mUploadRetrofit
@@ -165,6 +166,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+    }
+
+    fun pauseUploadFiles(view: View) {
+        uploadJob?.cancel()
     }
 
     var downloadJob: Job? = null
