@@ -168,7 +168,7 @@ class MainActivity : AppCompatActivity() {
         }.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
     }
 
-    fun pauseUploadFiles(view: View) {
+    fun cancelUploadFiles(view: View) {
         uploadJob?.cancel()
     }
 
