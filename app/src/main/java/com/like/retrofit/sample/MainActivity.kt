@@ -150,33 +150,37 @@ class MainActivity : AppCompatActivity() {
                 val url = "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket"
                 uploadJob = lifecycleScope.launch(Dispatchers.Main) {
                     try {
-                        val files: Map<File, ((Flow<Pair<Long, Long>>) -> Unit)?> = mapOf(
-                            File("/storage/emulated/0/Pictures/WeiXin/test.jpg") to {
-                                launch {
-                                    it.catch { throwable ->
-                                        Log.e(TAG, "1 $throwable")
-                                    }.collect {
-                                        Log.d(
-                                            TAG,
-                                            "1 ${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}"
-                                        )
-                                    }
-                                }
-                            },
-                            File("/storage/emulated/0/DCIM/P10102-182405.jpg") to {
-                                launch {
-                                    it.catch { throwable ->
-                                        Log.e(TAG, "2 $throwable")
-                                    }.collect {
-                                        Log.v(
-                                            TAG,
-                                            "2 ${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}"
-                                        )
-                                    }
+                        val file1 = File("/storage/emulated/0/Pictures/WeiXin/test.jpg")
+                        val progressBlock1: (Flow<Pair<Long, Long>>) -> Unit = {
+                            launch {
+                                it.catch { throwable ->
+                                    Log.e(TAG, "1 $throwable")
+                                }.collect {
+                                    Log.d(
+                                        TAG,
+                                        "1 ${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}"
+                                    )
                                 }
                             }
+                        }
+                        val file2 = File("/storage/emulated/0/DCIM/P10102-182405.jpg")
+                        val progressBlock2: (Flow<Pair<Long, Long>>) -> Unit = {
+                            launch {
+                                it.catch { throwable ->
+                                    Log.e(TAG, "2 $throwable")
+                                }.collect {
+                                    Log.v(
+                                        TAG,
+                                        "2 ${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}"
+                                    )
+                                }
+                            }
+                        }
+                        val result = MyApplication.mUploadRetrofit.uploadFiles(
+                            url,
+                            mapOf(file1 to progressBlock1, file2 to progressBlock2),
+                            callbackInterval = 20
                         )
-                        val result = MyApplication.mUploadRetrofit.uploadFiles(url, files, callbackInterval = 20)
                         Log.i(TAG, result)
                     } catch (e: Exception) {
                         Log.e(TAG, e.message ?: "")
