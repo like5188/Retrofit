@@ -14,8 +14,6 @@ import com.like.retrofit.download.utils.split
 import com.like.retrofit.util.getCustomNetworkMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.File
@@ -152,15 +150,12 @@ class MainActivity : AppCompatActivity() {
                 val url = "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket"
                 uploadJob = lifecycleScope.launch(Dispatchers.Main) {
                     MyApplication.mUploadRetrofit.uploadFiles(
+                        this,
                         url,
                         File("/storage/emulated/0/Pictures/WeiXin/test.jpg"),
                         callbackInterval = 20
                     ).collect {
-                        if (it.throwable != null) {
-                            Log.e("Logger", it.throwable.getCustomNetworkMessage())
-                        } else {
-                            Log.d("Logger", it.toString())
-                        }
+                        Log.d("Logger", it.toString())
                     }
                 }
             }
@@ -185,11 +180,7 @@ class MainActivity : AppCompatActivity() {
                 deleteCache = true,
                 callbackInterval = 200
             ).collect {
-                if (it.throwable != null) {
-                    Log.e("Logger", it.throwable.getCustomNetworkMessage())
-                } else {
-                    Log.d("Logger", it.toString())
-                }
+                Log.d("Logger", it.toString())
             }
         }
     }
@@ -210,11 +201,7 @@ class MainActivity : AppCompatActivity() {
                 deleteCache = false,
                 callbackInterval = 200
             ).collect {
-                if (it.throwable != null) {
-                    Log.e("Logger", it.throwable.getCustomNetworkMessage())
-                } else {
-                    Log.d("Logger", it.toString())
-                }
+                Log.d("Logger", it.toString())
             }
         }
     }

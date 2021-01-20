@@ -1,5 +1,6 @@
 package com.like.retrofit.download.model
 
+import com.like.retrofit.util.getCustomNetworkMessage
 import java.io.File
 
 class DownloadInfo {
@@ -93,7 +94,7 @@ class DownloadInfo {
         }
 
     override fun toString(): String {
-        return "DownloadInfo(cachedSize=$cachedSize, totalSize=$totalSize, status=$status, throwable=$throwable, threadCount=$threadCount)"
+        return "DownloadInfo(cachedSize=$cachedSize, totalSize=$totalSize, status=$status, throwable=${throwable.getCustomNetworkMessage()}, threadCount=$threadCount)"
     }
 
 }

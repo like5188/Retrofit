@@ -1,5 +1,7 @@
 package com.like.retrofit.upload.model
 
+import com.like.retrofit.util.getCustomNetworkMessage
+
 /**
  * 上传文件信息
  */
@@ -58,7 +60,7 @@ class UploadInfo {
     var uploadSize: Long = 0
 
     override fun toString(): String {
-        return "DownloadInfo(uploadSize=$uploadSize, totalSize=$totalSize, status=$status, throwable=$throwable)"
+        return "DownloadInfo(uploadSize=$uploadSize, totalSize=$totalSize, status=$status, throwable=${throwable.getCustomNetworkMessage()})"
     }
 
 }

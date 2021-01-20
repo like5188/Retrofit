@@ -1,18 +1,17 @@
 package com.like.retrofit.upload
 
 import android.Manifest
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.like.retrofit.RequestConfig
 import com.like.retrofit.upload.model.UploadInfo
 import com.like.retrofit.upload.utils.ProgressRequestBody
 import com.like.retrofit.upload.utils.UploadApi
 import com.like.retrofit.util.OkHttpClientFactory
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -58,6 +57,7 @@ class UploadRetrofit {
     @RequiresPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     @Throws(Exception::class)
     fun uploadFiles(
+        coroutineScope: CoroutineScope,
         url: String,
         file: File,
         fileKey: String = "file",
@@ -75,46 +75,42 @@ class UploadRetrofit {
         var startTime = 0L// 用于 STATUS_RUNNING 状态的发射频率限制，便于更新UI进度。
         val retrofit = mRetrofit
 
-        return flow {
-            Log.d("MainActivity", "flow start")
-            withContext(Dispatchers.IO) {
-                Log.d("MainActivity", "flow start 1")
-                val body = ProgressRequestBody(url, file, file.asRequestBody(fileMediaType))
-                launch {
-                    Log.d("MainActivity", "flow start 2")
-                    emitAll(body.getDataFlow())
-                }
-                Log.d("MainActivity", "flow start 3")
+        val stateFlow = MutableStateFlow(preHandleUploadInfo)
+        coroutineScope.launch {
+            try {
+                retrofit ?: throw UnsupportedOperationException("you must call init() method first")
+                // 如果真正请求前的出现错误，需要单独处理，避免error不能传达到用户。
+                checkUploadParams(url, file, callbackInterval)
+                val body = ProgressRequestBody(stateFlow, url, file, file.asRequestBody(fileMediaType))
                 val part = MultipartBody.Part.createFormData(fileKey, file.name, body)
                 val par: Map<String, RequestBody> = params?.mapValues {
                     it.value.toRequestBody(paramsMediaType)
                 } ?: emptyMap()
-                Log.d("MainActivity", "flow start 4")
-                retrofit!!.create(UploadApi::class.java).uploadFiles(url, part, par)
-                Log.d("MainActivity", "flow start 5")
+                retrofit.create(UploadApi::class.java).uploadFiles(url, part, par)
+            } catch (e: Exception) {
+                preHandleUploadInfo.status = UploadInfo.Status.STATUS_FAILED
+                preHandleUploadInfo.throwable = e
+                stateFlow.value = preHandleUploadInfo
             }
-        }.onStart {
-            Log.d("MainActivity", "flow onStart")
-            retrofit ?: throw UnsupportedOperationException("you must call init() method first")
-            // 如果真正请求前的出现错误，需要单独处理，避免error不能传达到用户。
-            checkUploadParams(url, file, callbackInterval)
+        }
+        return stateFlow.onStart {
             startTime = System.currentTimeMillis()
         }.filter {
-            Log.d("MainActivity", "flow filter")
-            // STATUS_RUNNING 状态的发射频率限制
-            it.status == UploadInfo.Status.STATUS_RUNNING && System.currentTimeMillis() - startTime >= callbackInterval
+            // STATUS_RUNNING 状态的发射频率限制，这里不能像下载那样判断，因为上面coroutineScope.launch代码块里面的异常不会触发catch代码块。
+            if (it.status != UploadInfo.Status.STATUS_RUNNING) {
+                true
+            } else {
+                it.totalSize == it.uploadSize || System.currentTimeMillis() - startTime >= callbackInterval
+            }
         }.onEach {
-            Log.d("MainActivity", "flow onEach")
             startTime = System.currentTimeMillis()
         }.onCompletion { throwable ->
-            Log.d("MainActivity", "flow onCompletion throwable=$throwable")
             if (throwable == null) {// 成功完成
                 preHandleUploadInfo.status = UploadInfo.Status.STATUS_SUCCESS
                 preHandleUploadInfo.throwable = null
                 emit(preHandleUploadInfo)
             }
         }.catch { throwable ->
-            Log.d("MainActivity", "flow catch throwable=$throwable")
             preHandleUploadInfo.status = UploadInfo.Status.STATUS_FAILED
             preHandleUploadInfo.throwable = throwable
             emit(preHandleUploadInfo)
