@@ -14,6 +14,7 @@ import com.like.retrofit.download.utils.split
 import com.like.retrofit.util.getCustomNetworkMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.File
@@ -147,17 +148,35 @@ class MainActivity : AppCompatActivity() {
             if (it) {
                 uploadJob = lifecycleScope.launch(Dispatchers.Main) {
                     try {
-                        val file = File("/storage/emulated/0/Pictures/WeiXin/test.jpg")
                         val result = MyApplication.mUploadRetrofit
                             .uploadFiles(
                                 "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket",
-                                mapOf(file to {
-                                    launch {
-                                        it.collect {
-                                            Log.d(TAG, "${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}")
+                                mapOf(
+                                    File("/storage/emulated/0/Pictures/WeiXin/test.jpg") to {
+                                        launch {
+                                            it.catch { throwable ->
+                                                Log.e(TAG, "1 $throwable")
+                                            }.collect {
+                                                Log.d(
+                                                    TAG,
+                                                    "1 ${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}"
+                                                )
+                                            }
+                                        }
+                                    },
+                                    File("/storage/emulated/0/DCIM/P10102-182405.jpg") to {
+                                        launch {
+                                            it.catch { throwable ->
+                                                Log.e(TAG, "2 $throwable")
+                                            }.collect {
+                                                Log.v(
+                                                    TAG,
+                                                    "2 ${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}"
+                                                )
+                                            }
                                         }
                                     }
-                                }),
+                                ),
                                 callbackInterval = 20
                             )
                         Log.i(TAG, result)
