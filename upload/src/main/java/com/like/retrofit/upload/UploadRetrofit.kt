@@ -51,7 +51,7 @@ class UploadRetrofit {
     @Throws(Exception::class)
     suspend fun uploadFiles(
         url: String,
-        files: Map<File, (suspend (Flow<Pair<Long, Long>>) -> Unit)?>,
+        files: Map<File, ((Flow<Pair<Long, Long>>) -> Unit)?>,
         fileKey: String = "files",
         fileMediaType: MediaType? = "multipart/form-data".toMediaTypeOrNull(),
         params: Map<String, String>? = null,
