@@ -152,10 +152,8 @@ class MainActivity : AppCompatActivity() {
                             .uploadFiles(
                                 "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket",
                                 mapOf(file to {
-                                    launch {
-                                        it.collect {
-                                            Log.d(TAG, "${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}")
-                                        }
+                                    it.collect {
+                                        Log.d(TAG, "${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}")
                                     }
                                 })
                             )

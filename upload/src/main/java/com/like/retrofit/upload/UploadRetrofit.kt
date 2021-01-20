@@ -4,10 +4,8 @@ import com.like.retrofit.RequestConfig
 import com.like.retrofit.upload.utils.ProgressRequestBody
 import com.like.retrofit.upload.utils.UploadApi
 import com.like.retrofit.util.OkHttpClientFactory
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -16,7 +14,6 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.await
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.io.File
 
@@ -53,7 +50,7 @@ class UploadRetrofit {
     @Throws(Exception::class)
     suspend fun uploadFiles(
         url: String,
-        files: Map<File, ((Flow<Pair<Long, Long>>) -> Unit)?>,
+        files: Map<File, (suspend (Flow<Pair<Long, Long>>) -> Unit)?>,
         fileKey: String = "files",
         fileMediaType: MediaType? = "multipart/form-data".toMediaTypeOrNull(),
         params: Map<String, String>? = null,
@@ -69,9 +66,7 @@ class UploadRetrofit {
         val par: Map<String, RequestBody> = params?.mapValues {
             it.value.toRequestBody(paramsMediaType)
         } ?: emptyMap()
-        return withContext(Dispatchers.IO) {
-            retrofit.create(UploadApi::class.java).uploadFiles(url, partList, par).await()
-        }
+        return retrofit.create(UploadApi::class.java).uploadFiles(url, partList, par)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -89,6 +84,6 @@ class UploadRetrofit {
                 }
             }.onEach {
                 startTime = System.currentTimeMillis()
-            }.flowOn(Dispatchers.IO)
+            }
     }
 }

@@ -2,7 +2,6 @@ package com.like.retrofit.upload.utils
 
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.Call
 import retrofit2.http.*
 
 interface UploadApi {
@@ -16,10 +15,10 @@ interface UploadApi {
      */
     @Multipart
     @POST
-    fun uploadFiles(
+    suspend fun uploadFiles(
         @Url url: String,
         @Part partList: List<MultipartBody.Part>,
         @PartMap params: @JvmSuppressWildcards Map<String, RequestBody>
-    ): Call<String>
+    ): String
 
 }
