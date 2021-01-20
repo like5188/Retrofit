@@ -80,21 +80,15 @@ class UploadRetrofit {
             withContext(Dispatchers.IO) {
                 Log.d("MainActivity", "flow start 1")
                 val body = ProgressRequestBody(url, file, file.asRequestBody(fileMediaType))
-                val launch = launch {
+                launch {
                     Log.d("MainActivity", "flow start 2")
-                    body.onProgress = {
-                        launch {
-                            Log.d("MainActivity", "flow start 6")
-                            emit(it)
-                        }
-                    }
+                    emitAll(body.getDataFlow())
                 }
                 Log.d("MainActivity", "flow start 3")
                 val part = MultipartBody.Part.createFormData(fileKey, file.name, body)
                 val par: Map<String, RequestBody> = params?.mapValues {
                     it.value.toRequestBody(paramsMediaType)
                 } ?: emptyMap()
-                launch.join()
                 Log.d("MainActivity", "flow start 4")
                 retrofit!!.create(UploadApi::class.java).uploadFiles(url, part, par)
                 Log.d("MainActivity", "flow start 5")

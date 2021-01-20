@@ -1,7 +1,10 @@
 package com.like.retrofit.upload.utils
 
-import android.util.Log
 import com.like.retrofit.upload.model.UploadInfo
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.flow.asFlow
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okio.Buffer
@@ -15,13 +18,16 @@ import java.io.File
  *
  * Pair<Long, Long>：first为总长度，second为当前上传的进度
  */
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalCoroutinesApi::class, FlowPreview::class)
 internal class ProgressRequestBody(
     private val url: String,
     private val file: File,
     private val delegate: RequestBody
 ) : RequestBody() {
-    var onProgress: ((UploadInfo) -> Unit)? = null
+    private val _controlCh = ConflatedBroadcastChannel<UploadInfo>()
     private lateinit var bufferedSink: BufferedSink
+
+    internal fun getDataFlow() = _controlCh.asFlow()
 
     override fun contentLength(): Long = delegate.contentLength()
 
@@ -36,9 +42,7 @@ internal class ProgressRequestBody(
                 override fun write(source: Buffer, byteCount: Long) {
                     super.write(source, byteCount)
                     bytesWritten += byteCount
-
-                    Log.v("MainActivity", "writeTo onProgress=$onProgress")
-                    onProgress?.invoke(UploadInfo().apply {
+                    _controlCh.offer(UploadInfo().apply {
                         this.url = this@ProgressRequestBody.url
                         this.totalSize = file.length()
                         this.absolutePath = file.absolutePath
