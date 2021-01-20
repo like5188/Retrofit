@@ -144,46 +144,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     var uploadJob: Job? = null
+
+    @SuppressLint("MissingPermission")
     fun uploadFiles(view: View) {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             if (it) {
                 val url = "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket"
                 uploadJob = lifecycleScope.launch(Dispatchers.Main) {
-                    try {
-                        val file1 = File("/storage/emulated/0/Pictures/WeiXin/test.jpg")
-                        val progressBlock1: (Flow<Pair<Long, Long>>) -> Unit = {
-                            launch {
-                                it.catch { throwable ->
-                                    Log.e(TAG, "1 $throwable")
-                                }.collect {
-                                    Log.d(
-                                        TAG,
-                                        "1 ${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}"
-                                    )
-                                }
-                            }
+                    MyApplication.mUploadRetrofit.uploadFiles(
+                        url,
+                        File("/storage/emulated/0/Pictures/WeiXin/test.jpg"),
+                        callbackInterval = 20
+                    ).collect {
+                        if (it.throwable != null) {
+                            Log.e("Logger", it.throwable.getCustomNetworkMessage())
+                        } else {
+                            Log.d("Logger", it.toString())
                         }
-                        val file2 = File("/storage/emulated/0/DCIM/P10102-182405.jpg")
-                        val progressBlock2: (Flow<Pair<Long, Long>>) -> Unit = {
-                            launch {
-                                it.catch { throwable ->
-                                    Log.e(TAG, "2 $throwable")
-                                }.collect {
-                                    Log.v(
-                                        TAG,
-                                        "2 ${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}"
-                                    )
-                                }
-                            }
-                        }
-                        val result = MyApplication.mUploadRetrofit.uploadFiles(
-                            url,
-                            mapOf(file1 to progressBlock1, file2 to progressBlock2),
-                            callbackInterval = 20
-                        )
-                        Log.i(TAG, result)
-                    } catch (e: Exception) {
-                        Log.e(TAG, e.message ?: "")
                     }
                 }
             }

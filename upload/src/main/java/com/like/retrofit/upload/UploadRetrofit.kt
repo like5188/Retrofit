@@ -1,12 +1,18 @@
 package com.like.retrofit.upload
 
+import android.Manifest
+import android.util.Log
+import androidx.annotation.RequiresPermission
 import com.like.retrofit.RequestConfig
+import com.like.retrofit.upload.model.UploadInfo
 import com.like.retrofit.upload.utils.ProgressRequestBody
 import com.like.retrofit.upload.utils.UploadApi
 import com.like.retrofit.util.OkHttpClientFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -41,50 +47,101 @@ class UploadRetrofit {
      * 上传文件
      *
      * @param url               请求地址。可以是完整路径或者子路径(如果在RequestConfig配置过)
-     * @param files             key：上传的文件；value：上传文件的进度监听（Pair<Long, Long>：first为总长度，second为当前上传的进度）
-     * @param fileKey           后端确定的File对应的key，后端用它来解析文件。默认："files"
+     * @param file              上传的文件
+     * @param fileKey           后端确定的File对应的key，后端用它来解析文件。默认："file"
      * @param fileMediaType     上传文件的类型。默认：MediaType.parse("multipart/form-data")
      * @param params            其它参数。默认：null
      * @param paramsMediaType   上传参数的类型。默认：MediaType.parse("text/plain")
      * @param callbackInterval  数据的发送频率限制，防止发送数据过快。默认200毫秒
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @RequiresPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     @Throws(Exception::class)
-    suspend fun uploadFiles(
+    fun uploadFiles(
         url: String,
-        files: Map<File, ((Flow<Pair<Long, Long>>) -> Unit)?>,
-        fileKey: String = "files",
+        file: File,
+        fileKey: String = "file",
         fileMediaType: MediaType? = "multipart/form-data".toMediaTypeOrNull(),
         params: Map<String, String>? = null,
         paramsMediaType: MediaType? = "text/plain".toMediaTypeOrNull(),
         callbackInterval: Long = 200L
-    ): String {
-        val retrofit = mRetrofit ?: throw UnsupportedOperationException("you must call init() method first")
-        val partList: List<MultipartBody.Part> = files.map {
-            val body = ProgressRequestBody(it.key.asRequestBody(fileMediaType))
-            it.value?.invoke(getDataFlow(body, callbackInterval))
-            MultipartBody.Part.createFormData(fileKey, it.key.name, body)
+    ): Flow<UploadInfo> {
+        // preHandleUploadInfo 用于实际上传前的一些逻辑处理
+        val preHandleUploadInfo = UploadInfo().apply {
+            this.url = url
+            this.totalSize = file.length()
+            this.absolutePath = file.absolutePath
         }
-        val par: Map<String, RequestBody> = params?.mapValues {
-            it.value.toRequestBody(paramsMediaType)
-        } ?: emptyMap()
-        return retrofit.create(UploadApi::class.java).uploadFiles(url, partList, par)
+        var startTime = 0L// 用于 STATUS_RUNNING 状态的发射频率限制，便于更新UI进度。
+        val retrofit = mRetrofit
+
+        return flow {
+            Log.d("MainActivity", "flow start")
+            withContext(Dispatchers.IO) {
+                Log.d("MainActivity", "flow start 1")
+                val body = ProgressRequestBody(url, file, file.asRequestBody(fileMediaType))
+                val launch = launch {
+                    Log.d("MainActivity", "flow start 2")
+                    body.onProgress = {
+                        launch {
+                            Log.d("MainActivity", "flow start 6")
+                            emit(it)
+                        }
+                    }
+                }
+                Log.d("MainActivity", "flow start 3")
+                val part = MultipartBody.Part.createFormData(fileKey, file.name, body)
+                val par: Map<String, RequestBody> = params?.mapValues {
+                    it.value.toRequestBody(paramsMediaType)
+                } ?: emptyMap()
+                launch.join()
+                Log.d("MainActivity", "flow start 4")
+                retrofit!!.create(UploadApi::class.java).uploadFiles(url, part, par)
+                Log.d("MainActivity", "flow start 5")
+            }
+        }.onStart {
+            Log.d("MainActivity", "flow onStart")
+            retrofit ?: throw UnsupportedOperationException("you must call init() method first")
+            // 如果真正请求前的出现错误，需要单独处理，避免error不能传达到用户。
+            checkUploadParams(url, file, callbackInterval)
+            startTime = System.currentTimeMillis()
+        }.filter {
+            Log.d("MainActivity", "flow filter")
+            // STATUS_RUNNING 状态的发射频率限制
+            it.status == UploadInfo.Status.STATUS_RUNNING && System.currentTimeMillis() - startTime >= callbackInterval
+        }.onEach {
+            Log.d("MainActivity", "flow onEach")
+            startTime = System.currentTimeMillis()
+        }.onCompletion { throwable ->
+            Log.d("MainActivity", "flow onCompletion throwable=$throwable")
+            if (throwable == null) {// 成功完成
+                preHandleUploadInfo.status = UploadInfo.Status.STATUS_SUCCESS
+                preHandleUploadInfo.throwable = null
+                emit(preHandleUploadInfo)
+            }
+        }.catch { throwable ->
+            Log.d("MainActivity", "flow catch throwable=$throwable")
+            preHandleUploadInfo.status = UploadInfo.Status.STATUS_FAILED
+            preHandleUploadInfo.throwable = throwable
+            emit(preHandleUploadInfo)
+        }.flowOn(Dispatchers.IO)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun getDataFlow(progressRequestBody: ProgressRequestBody, callbackInterval: Long): Flow<Pair<Long, Long>> {
-        var startTime = 0L// 用于发射频率限制，便于更新UI进度。
-        return progressRequestBody.getDataFlow()
-            .onStart {
-                startTime = System.currentTimeMillis()
-            }.filter {
-                // 发射频率限制
-                if (it.first != it.second) {// 保证完成那一次必须发射
-                    System.currentTimeMillis() - startTime >= callbackInterval
-                } else {
-                    true
-                }
-            }.onEach {
-                startTime = System.currentTimeMillis()
-            }.flowOn(Dispatchers.IO)
+    @Throws(IllegalArgumentException::class)
+    private fun checkUploadParams(
+        url: String,
+        file: File,
+        callbackInterval: Long
+    ) {
+        val checkParamsException = when {
+            url.isEmpty() -> IllegalArgumentException("url isEmpty")
+            file.isDirectory -> IllegalArgumentException("downloadFile isDirectory")
+            callbackInterval <= 0 -> IllegalArgumentException("callbackInterval must be greater than 0")
+            else -> null
+        }
+        if (checkParamsException != null) {
+            throw checkParamsException
+        }
     }
+
 }

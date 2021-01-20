@@ -1,6 +1,5 @@
 package com.like.retrofit.sample
 
-import com.like.retrofit.download.model.DownloadInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*

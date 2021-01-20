@@ -1,27 +1,27 @@
 package com.like.retrofit.upload.utils
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.flow.asFlow
+import android.util.Log
+import com.like.retrofit.upload.model.UploadInfo
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okio.Buffer
 import okio.BufferedSink
 import okio.ForwardingSink
 import okio.buffer
+import java.io.File
 
 /**
  * 通过progressLiveData返回进度的RequestBody
  *
  * Pair<Long, Long>：first为总长度，second为当前上传的进度
  */
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalCoroutinesApi::class, FlowPreview::class)
-internal class ProgressRequestBody(private val delegate: RequestBody) : RequestBody() {
-    private val _controlCh = ConflatedBroadcastChannel<Pair<Long, Long>>()
+internal class ProgressRequestBody(
+    private val url: String,
+    private val file: File,
+    private val delegate: RequestBody
+) : RequestBody() {
+    var onProgress: ((UploadInfo) -> Unit)? = null
     private lateinit var bufferedSink: BufferedSink
-
-    internal fun getDataFlow() = _controlCh.asFlow()
 
     override fun contentLength(): Long = delegate.contentLength()
 
@@ -30,16 +30,21 @@ internal class ProgressRequestBody(private val delegate: RequestBody) : RequestB
     override fun writeTo(sink: BufferedSink) {
         if (!::bufferedSink.isInitialized) {
             bufferedSink = object : ForwardingSink(sink) {
-                // 总字节数
-                val contentLength = contentLength()
-
                 // 当前已经上传的字节数
                 var bytesWritten = 0L
 
                 override fun write(source: Buffer, byteCount: Long) {
                     super.write(source, byteCount)
                     bytesWritten += byteCount
-                    _controlCh.offer(Pair(contentLength, bytesWritten))
+
+                    Log.v("MainActivity", "writeTo onProgress=$onProgress")
+                    onProgress?.invoke(UploadInfo().apply {
+                        this.url = this@ProgressRequestBody.url
+                        this.totalSize = file.length()
+                        this.absolutePath = file.absolutePath
+                        this.status = UploadInfo.Status.STATUS_RUNNING
+                        this.uploadSize = bytesWritten
+                    })
                 }
             }.buffer()
         }
