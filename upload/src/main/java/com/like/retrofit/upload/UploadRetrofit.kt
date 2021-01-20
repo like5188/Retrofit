@@ -4,6 +4,7 @@ import com.like.retrofit.RequestConfig
 import com.like.retrofit.upload.utils.ProgressRequestBody
 import com.like.retrofit.upload.utils.UploadApi
 import com.like.retrofit.util.OkHttpClientFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import okhttp3.MediaType
@@ -84,6 +85,6 @@ class UploadRetrofit {
                 }
             }.onEach {
                 startTime = System.currentTimeMillis()
-            }
+            }.flowOn(Dispatchers.IO)
     }
 }
