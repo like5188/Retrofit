@@ -146,39 +146,39 @@ class MainActivity : AppCompatActivity() {
     fun uploadFiles(view: View) {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             if (it) {
+                val url = "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket"
                 uploadJob = lifecycleScope.launch(Dispatchers.Main) {
                     try {
-                        val result = MyApplication.mUploadRetrofit
-                            .uploadFiles(
-                                "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket",
-                                mapOf(
-                                    File("/storage/emulated/0/Pictures/WeiXin/test.jpg") to {
-                                        launch {
-                                            it.catch { throwable ->
-                                                Log.e(TAG, "1 $throwable")
-                                            }.collect {
-                                                Log.d(
-                                                    TAG,
-                                                    "1 ${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}"
-                                                )
-                                            }
-                                        }
-                                    },
-                                    File("/storage/emulated/0/DCIM/P10102-182405.jpg") to {
-                                        launch {
-                                            it.catch { throwable ->
-                                                Log.e(TAG, "2 $throwable")
-                                            }.collect {
-                                                Log.v(
-                                                    TAG,
-                                                    "2 ${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}"
-                                                )
-                                            }
+                        val result = MyApplication.mUploadRetrofit.uploadFiles(
+                            url,
+                            mapOf(
+                                File("/storage/emulated/0/Pictures/WeiXin/test.jpg") to {
+                                    launch {
+                                        it.catch { throwable ->
+                                            Log.e(TAG, "1 $throwable")
+                                        }.collect {
+                                            Log.d(
+                                                TAG,
+                                                "1 ${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}"
+                                            )
                                         }
                                     }
-                                ),
-                                callbackInterval = 20
-                            )
+                                },
+                                File("/storage/emulated/0/DCIM/P10102-182405.jpg") to {
+                                    launch {
+                                        it.catch { throwable ->
+                                            Log.e(TAG, "2 $throwable")
+                                        }.collect {
+                                            Log.v(
+                                                TAG,
+                                                "2 ${Thread.currentThread().name} totalSize=${it.first} uploadedSize=${it.second}"
+                                            )
+                                        }
+                                    }
+                                }
+                            ),
+                            callbackInterval = 20
+                        )
                         Log.i(TAG, result)
                     } catch (e: Exception) {
                         Log.e(TAG, e.message ?: "")
