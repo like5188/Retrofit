@@ -147,7 +147,7 @@ class MainActivity : AppCompatActivity() {
             if (it) {
                 uploadJob = lifecycleScope.launch(Dispatchers.Main) {
                     try {
-                        val file = File("/storage/emulated/0/DCIM/P10102-182405.jpg")
+                        val file = File("/storage/emulated/0/Pictures/WeiXin/test.jpg")
                         val result = MyApplication.mUploadRetrofit
                             .uploadFiles(
                                 "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket",
