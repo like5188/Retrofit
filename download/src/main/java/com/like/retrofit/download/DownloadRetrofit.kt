@@ -79,8 +79,15 @@ class DownloadRetrofit {
             }
             startTime = System.currentTimeMillis()
         }.filter {
-            // STATUS_RUNNING 状态的发射频率限制
-            it.status == DownloadInfo.Status.STATUS_RUNNING && System.currentTimeMillis() - startTime >= callbackInterval
+            when (it.status) {
+                DownloadInfo.Status.STATUS_PENDING -> false
+                DownloadInfo.Status.STATUS_SUCCESS -> true
+                DownloadInfo.Status.STATUS_FAILED -> true// 上面coroutineScope.launch代码块里面的异常不会触发catch代码块。所以不是所有异常都是由catch代码块处理的。
+                DownloadInfo.Status.STATUS_RUNNING -> {// STATUS_RUNNING 状态的发射频率限制
+                    it.totalSize == it.cachedSize // 保证最后一次一定要传递
+                            || System.currentTimeMillis() - startTime >= callbackInterval
+                }
+            }
         }.map {
             if (threadCount > 1 && it.status == DownloadInfo.Status.STATUS_RUNNING) {
                 // 多协程下载。合并 STATUS_RUNNING 数据，以便正确显示 totalSize 和 cachedSize，用于UI的进度显示
