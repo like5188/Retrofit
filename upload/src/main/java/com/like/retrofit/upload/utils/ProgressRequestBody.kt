@@ -1,7 +1,5 @@
 package com.like.retrofit.upload.utils
 
-import androidx.lifecycle.MutableLiveData
-import com.like.retrofit.upload.model.UploadInfo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import okhttp3.MediaType
 import okhttp3.RequestBody
@@ -9,17 +7,14 @@ import okio.Buffer
 import okio.BufferedSink
 import okio.ForwardingSink
 import okio.buffer
-import java.io.File
 
 /**
- * 通过 liveData 返回进度的 RequestBody
+ * 通过 liveData 返回当前进度的 RequestBody
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class ProgressRequestBody(
-    private val liveData: MutableLiveData<UploadInfo>,
-    private val url: String,
-    private val file: File,
-    private val delegate: RequestBody
+    private val delegate: RequestBody,
+    private val onProgress: (Long) -> Unit
 ) : RequestBody() {
     private lateinit var bufferedSink: BufferedSink
 
@@ -36,13 +31,7 @@ internal class ProgressRequestBody(
                 override fun write(source: Buffer, byteCount: Long) {
                     super.write(source, byteCount)
                     bytesWritten += byteCount
-                    liveData.postValue(UploadInfo().apply {
-                        this.url = this@ProgressRequestBody.url
-                        this.totalSize = file.length()
-                        this.absolutePath = file.absolutePath
-                        this.status = UploadInfo.Status.STATUS_RUNNING
-                        this.uploadSize = bytesWritten
-                    })
+                    onProgress(bytesWritten)
                 }
             }.buffer()
         }
