@@ -14,6 +14,7 @@ import javax.net.ssl.SSLHandshakeException
  */
 fun Throwable?.getCustomNetworkMessage() =
     when (this) {
+        null -> ""
         is HttpException -> "网络错误【${this.code()}】"
         is ConnectException -> "网络连接失败"
         is SocketTimeoutException -> "网络连接超时"
