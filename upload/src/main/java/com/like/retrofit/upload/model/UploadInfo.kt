@@ -19,9 +19,9 @@ class UploadInfo {
         STATUS_RUNNING,
 
         /**
-         * when the upload has successfully completed.
+         * when the upload has completed.
          */
-        STATUS_SUCCESS,
+        STATUS_COMPLETED,
 
         /**
          * when the upload has failed (and will not be retried).
@@ -59,8 +59,13 @@ class UploadInfo {
      */
     var uploadSize: Long = 0
 
+    /**
+     * 上传接口返回的结果
+     */
+    var result: String? = null
+
     override fun toString(): String {
-        return "DownloadInfo(uploadSize=$uploadSize, totalSize=$totalSize, status=$status, throwable=${throwable.getCustomNetworkMessage()})"
+        return "DownloadInfo(uploadSize=$uploadSize, totalSize=$totalSize, status=$status, throwable=${throwable.getCustomNetworkMessage()}, result=$result)"
     }
 
 }

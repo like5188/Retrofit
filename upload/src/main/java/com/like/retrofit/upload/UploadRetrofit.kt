@@ -91,7 +91,11 @@ class UploadRetrofit {
                     val par: Map<String, RequestBody> = params?.mapValues {
                         it.value.toRequestBody(paramsMediaType)
                     } ?: emptyMap()
-                    retrofit.create(UploadApi::class.java).uploadFile(url, part, par)
+                    val result = retrofit.create(UploadApi::class.java).uploadFile(url, part, par)
+                    preHandleUploadInfo.status = UploadInfo.Status.STATUS_COMPLETED
+                    preHandleUploadInfo.throwable = null
+                    preHandleUploadInfo.result = result
+                    liveData.postValue(preHandleUploadInfo)
                 } catch (e: Exception) {
                     preHandleUploadInfo.status = UploadInfo.Status.STATUS_FAILED
                     preHandleUploadInfo.throwable = e
@@ -102,7 +106,7 @@ class UploadRetrofit {
         }.filter {
             when (it.status) {
                 UploadInfo.Status.STATUS_PENDING -> false
-                UploadInfo.Status.STATUS_SUCCESS -> true
+                UploadInfo.Status.STATUS_COMPLETED -> true
                 UploadInfo.Status.STATUS_FAILED -> true// 上面coroutineScope.launch代码块里面的异常不会触发catch代码块。所以不是所有异常都是由catch代码块处理的。
                 UploadInfo.Status.STATUS_RUNNING -> {// STATUS_RUNNING 状态的发射频率限制
                     it.totalSize == it.uploadSize // 保证最后一次一定要传递
@@ -111,12 +115,6 @@ class UploadRetrofit {
             }
         }.onEach {
             startTime = System.currentTimeMillis()
-        }.onCompletion { throwable ->
-            if (throwable == null) {// 成功完成
-                preHandleUploadInfo.status = UploadInfo.Status.STATUS_SUCCESS
-                preHandleUploadInfo.throwable = null
-                emit(preHandleUploadInfo)
-            }
         }.catch { throwable ->
             preHandleUploadInfo.status = UploadInfo.Status.STATUS_FAILED
             preHandleUploadInfo.throwable = throwable
