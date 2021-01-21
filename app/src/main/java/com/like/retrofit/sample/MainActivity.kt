@@ -155,7 +155,7 @@ class MainActivity : AppCompatActivity() {
                         File("/storage/emulated/0/Pictures/WeiXin/test.jpg"),
                         callbackInterval = 20
                     ).collect {
-                        Log.d("Logger", it.toString())
+                        Log.i("MainActivity", it.toString())
                     }
                 }
             }
@@ -180,7 +180,7 @@ class MainActivity : AppCompatActivity() {
                 deleteCache = true,
                 callbackInterval = 200
             ).collect {
-                Log.d("Logger", it.toString())
+                Log.i("MainActivity", it.toString())
             }
         }
     }
@@ -201,7 +201,7 @@ class MainActivity : AppCompatActivity() {
                 deleteCache = false,
                 callbackInterval = 200
             ).collect {
-                Log.d("Logger", it.toString())
+                Log.i("MainActivity", it.toString())
             }
         }
     }
