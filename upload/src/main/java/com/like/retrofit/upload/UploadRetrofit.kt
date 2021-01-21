@@ -132,7 +132,8 @@ class UploadRetrofit {
     ) {
         val checkParamsException = when {
             url.isEmpty() -> IllegalArgumentException("url isEmpty")
-            file.isDirectory -> IllegalArgumentException("downloadFile isDirectory")
+            !file.exists() -> IllegalArgumentException("file is not exists")
+            file.isDirectory -> IllegalArgumentException("file is directory")
             callbackInterval <= 0 -> IllegalArgumentException("callbackInterval must be greater than 0")
             else -> null
         }
