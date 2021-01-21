@@ -1,18 +1,18 @@
 package com.like.retrofit.upload
 
 import android.Manifest
-import android.util.Log
 import androidx.annotation.RequiresPermission
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.like.retrofit.RequestConfig
 import com.like.retrofit.upload.model.UploadInfo
 import com.like.retrofit.upload.utils.ProgressRequestBody
 import com.like.retrofit.upload.utils.UploadApi
 import com.like.retrofit.util.OkHttpClientFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -76,33 +76,28 @@ class UploadRetrofit {
         var startTime = 0L// 用于 STATUS_RUNNING 状态的发射频率限制，便于更新UI进度。
         val retrofit = mRetrofit
 
-        val stateFlow = MutableStateFlow(preHandleUploadInfo)
-        return stateFlow.onStart {
-            Log.v("MainActivity", "onStart")
+        val liveData = MutableLiveData<UploadInfo>()
+        return liveData.asFlow().onStart {
             startTime = System.currentTimeMillis()
             coroutineScope.launch {
-                Log.d("MainActivity", "1")
                 try {
                     retrofit ?: throw UnsupportedOperationException("you must call init() method first")
                     // 如果真正请求前的出现错误，需要单独处理，避免error不能传达到用户。
                     checkUploadParams(url, file, callbackInterval)
-                    val body = ProgressRequestBody(stateFlow, url, file, file.asRequestBody(fileMediaType))
+                    val body = ProgressRequestBody(liveData, url, file, file.asRequestBody(fileMediaType))
                     val part = MultipartBody.Part.createFormData(fileKey, file.name, body)
                     val par: Map<String, RequestBody> = params?.mapValues {
                         it.value.toRequestBody(paramsMediaType)
                     } ?: emptyMap()
-                    Log.d("MainActivity", "2")
                     retrofit.create(UploadApi::class.java).uploadFiles(url, part, par)
-                    Log.d("MainActivity", "3")
                 } catch (e: Exception) {
                     preHandleUploadInfo.status = UploadInfo.Status.STATUS_FAILED
                     preHandleUploadInfo.throwable = e
-                    stateFlow.value = preHandleUploadInfo
-                    Log.d("MainActivity", "4")
+                    // 如果把 MutableLiveData 换成 MutableStateFlow 的话，当 retrofit.create(UploadApi::class.java).uploadFiles(url, part, par) 代码链接超时错误时，会导致此错误无法发射出去。原因未知。
+                    liveData.postValue(preHandleUploadInfo)
                 }
             }
         }.filter {
-            Log.d("MainActivity", "filter $it")
             when (it.status) {
                 UploadInfo.Status.STATUS_PENDING -> false
                 UploadInfo.Status.STATUS_SUCCESS -> true
@@ -113,17 +108,14 @@ class UploadRetrofit {
                 }
             }
         }.onEach {
-            Log.d("MainActivity", "onEach $it")
             startTime = System.currentTimeMillis()
         }.onCompletion { throwable ->
-            Log.v("MainActivity", "onCompletion $throwable")
             if (throwable == null) {// 成功完成
                 preHandleUploadInfo.status = UploadInfo.Status.STATUS_SUCCESS
                 preHandleUploadInfo.throwable = null
                 emit(preHandleUploadInfo)
             }
         }.catch { throwable ->
-            Log.v("MainActivity", "catch $throwable")
             preHandleUploadInfo.status = UploadInfo.Status.STATUS_FAILED
             preHandleUploadInfo.throwable = throwable
             emit(preHandleUploadInfo)
@@ -147,4 +139,22 @@ class UploadRetrofit {
         }
     }
 
+    private fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
+        val channel = Channel<T>(Channel.CONFLATED)
+        val observer = Observer<T> {
+            channel.offer(it)
+        }
+        withContext(Dispatchers.Main.immediate) {
+            observeForever(observer)
+        }
+        try {
+            for (value in channel) {
+                emit(value)
+            }
+        } finally {
+            GlobalScope.launch(Dispatchers.Main.immediate) {
+                removeObserver(observer)
+            }
+        }
+    }
 }
