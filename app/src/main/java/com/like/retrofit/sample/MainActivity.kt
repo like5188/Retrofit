@@ -152,8 +152,7 @@ class MainActivity : AppCompatActivity() {
                     MyApplication.mUploadRetrofit.uploadFiles(
                         this,
                         url,
-                        File("/storage/emulated/0/Pictures/WeiXin/test.jpg"),
-                        callbackInterval = 20
+                        File("/storage/emulated/0/Pictures/WeiXin/test.jpg")
                     ).collect {
                         Log.i("MainActivity", it.toString())
                     }
@@ -177,8 +176,7 @@ class MainActivity : AppCompatActivity() {
             MyApplication.mDownloadRetrofit.downloadFile(
                 url,
                 File(cacheDir, "1591776403484.jpg"),
-                deleteCache = true,
-                callbackInterval = 200
+                deleteCache = true
             ).collect {
                 Log.i("MainActivity", it.toString())
             }
@@ -198,8 +196,7 @@ class MainActivity : AppCompatActivity() {
                 url,
                 File(cacheDir, "a.apk"),
                 Runtime.getRuntime().availableProcessors(),
-                deleteCache = false,
-                callbackInterval = 200
+                deleteCache = false
             ).collect {
                 Log.i("MainActivity", it.toString())
             }
