@@ -13,7 +13,7 @@
 ```java
     var uploadJob: Job? = null
     uploadJob = lifecycleScope.launch(Dispatchers.Main) {
-        mUploadRetrofit.uploadFiles(
+        mUploadRetrofit.uploadFile(
             this,
             url,
             File("/storage/emulated/0/Pictures/WeiXin/test.jpg")

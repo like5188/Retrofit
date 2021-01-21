@@ -46,6 +46,7 @@ class UploadRetrofit {
     /**
      * 上传文件
      *
+     * @param coroutineScope
      * @param url               请求地址。可以是完整路径或者子路径(如果在RequestConfig配置过)
      * @param file              上传的文件
      * @param fileKey           后端确定的File对应的key，后端用它来解析文件。默认："file"
@@ -57,7 +58,7 @@ class UploadRetrofit {
     @OptIn(ExperimentalCoroutinesApi::class)
     @RequiresPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     @Throws(Exception::class)
-    fun uploadFiles(
+    fun uploadFile(
         coroutineScope: CoroutineScope,
         url: String,
         file: File,
@@ -94,7 +95,7 @@ class UploadRetrofit {
                     val par: Map<String, RequestBody> = params?.mapValues {
                         it.value.toRequestBody(paramsMediaType)
                     } ?: emptyMap()
-                    retrofit.create(UploadApi::class.java).uploadFiles(url, part, par)
+                    retrofit.create(UploadApi::class.java).uploadFile(url, part, par)
                 } catch (e: Exception) {
                     preHandleUploadInfo.status = UploadInfo.Status.STATUS_FAILED
                     preHandleUploadInfo.throwable = e

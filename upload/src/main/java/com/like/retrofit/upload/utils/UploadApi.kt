@@ -15,7 +15,7 @@ interface UploadApi {
      */
     @Multipart
     @POST
-    suspend fun uploadFiles(
+    suspend fun uploadFile(
         @Url url: String,
         @Part part: MultipartBody.Part,
         @PartMap params: @JvmSuppressWildcards Map<String, RequestBody>
