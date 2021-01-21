@@ -1,7 +1,5 @@
 package com.like.retrofit.upload
 
-import android.Manifest
-import androidx.annotation.RequiresPermission
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -56,8 +54,6 @@ class UploadRetrofit {
      * @param callbackInterval  数据的发送频率限制，防止发送数据过快。默认200毫秒
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    @RequiresPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-    @Throws(Exception::class)
     fun uploadFile(
         coroutineScope: CoroutineScope,
         url: String,

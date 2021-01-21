@@ -1,7 +1,5 @@
 package com.like.retrofit.download
 
-import android.Manifest
-import androidx.annotation.RequiresPermission
 import com.like.retrofit.RequestConfig
 import com.like.retrofit.download.factory.GetContentLengthConverterFactory
 import com.like.retrofit.download.model.DownloadInfo
@@ -45,7 +43,6 @@ class DownloadRetrofit {
      * @param deleteCache       下载之前是否删除已经下载的文件缓存，默认为false
      * @param callbackInterval  数据的发送频率限制，防止下载时发送数据过快，默认200毫秒
      */
-    @RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     @OptIn(ExperimentalCoroutinesApi::class)
     fun downloadFile(
         url: String,

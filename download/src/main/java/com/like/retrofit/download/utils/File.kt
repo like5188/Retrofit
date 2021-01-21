@@ -1,8 +1,5 @@
 package com.like.retrofit.download.utils
 
-import android.Manifest
-import android.annotation.SuppressLint
-import androidx.annotation.RequiresPermission
 import java.io.File
 import java.io.RandomAccessFile
 
@@ -110,8 +107,6 @@ internal class SplitFileInfo(private val file: File, private val first: Long, va
 /**
  * 如果file不存在，则创建。
  */
-@SuppressLint("MissingPermission")
-@RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 fun File.create(): Boolean = try {
     if (!this.isDirectory) {// 是文件
         if (!this.exists()) {
@@ -135,8 +130,6 @@ fun File.create(): Boolean = try {
  *
  * @param count 分割数量
  */
-@SuppressLint("MissingPermission")
-@RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 fun File?.split(count: Int): List<File>? {
     if (this == null || this.isDirectory || !this.exists()) {
         return null
@@ -192,8 +185,6 @@ fun File?.split(count: Int): List<File>? {
  * @param outFile       合并后的文件
  * @param deleteFiles   合并成功后，是否删除子文件
  */
-@SuppressLint("MissingPermission")
-@RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 fun List<File>?.merge(outFile: File?, deleteFiles: Boolean = false) {
     if (this == null || this.isEmpty()) {
         return
