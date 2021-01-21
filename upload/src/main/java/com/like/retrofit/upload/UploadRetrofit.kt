@@ -91,6 +91,7 @@ class UploadRetrofit {
                     } ?: emptyMap()
                     retrofit.create(UploadApi::class.java).uploadFiles(url, part, par)
                 } catch (e: Exception) {
+                    preHandleUploadInfo.uploadSize = liveData.value?.uploadSize ?: 0
                     preHandleUploadInfo.status = UploadInfo.Status.STATUS_FAILED
                     preHandleUploadInfo.throwable = e
                     // 如果把 MutableLiveData 换成 MutableStateFlow 的话，当 retrofit.create(UploadApi::class.java).uploadFiles(url, part, par) 代码链接超时错误时，会导致此错误无法发射出去。原因未知。
@@ -111,11 +112,13 @@ class UploadRetrofit {
             startTime = System.currentTimeMillis()
         }.onCompletion { throwable ->
             if (throwable == null) {// 成功完成
+                preHandleUploadInfo.uploadSize = liveData.value?.uploadSize ?: 0
                 preHandleUploadInfo.status = UploadInfo.Status.STATUS_SUCCESS
                 preHandleUploadInfo.throwable = null
                 emit(preHandleUploadInfo)
             }
         }.catch { throwable ->
+            preHandleUploadInfo.uploadSize = liveData.value?.uploadSize ?: 0
             preHandleUploadInfo.status = UploadInfo.Status.STATUS_FAILED
             preHandleUploadInfo.throwable = throwable
             emit(preHandleUploadInfo)
