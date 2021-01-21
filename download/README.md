@@ -13,12 +13,12 @@
 ```java
     var downloadJob: Job? = null
     downloadJob = lifecycleScope.launch(Dispatchers.Main) {
-        MyApplication.mDownloadRetrofit.download(url, File(cacheDir, "a.apk")).collect {
-            if (it.throwable != null) {
-                Log.e("Logger", it.throwable.getCustomNetworkMessage())
-            } else {
-                Log.d("Logger", it.toString())
-            }
+        mDownloadRetrofit.downloadFile(
+            url,
+            File(cacheDir, "a.apk"),
+            deleteCache = true
+        ).collect {
+            Log.i("MainActivity", it.toString())
         }
     }
     取消：
