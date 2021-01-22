@@ -148,12 +148,10 @@ class MainActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             if (it) {
                 val url = "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket"
+//                val file = File("/storage/emulated/0/Pictures/WeiXin/test.jpg")
+                val file = File("/storage/emulated/0/DCIM/P10102-182405.jpg")
                 uploadJob = lifecycleScope.launch(Dispatchers.Main) {
-                    MyApplication.mUploadRetrofit.uploadFile(
-                        this,
-                        url,
-                        File("/storage/emulated/0/Pictures/WeiXin/test.jpg")
-                    ).collect {
+                    MyApplication.mUploadRetrofit.uploadFile(this, url, file).collect {
                         Log.i("MainActivity", it.toString())
                     }
                 }
