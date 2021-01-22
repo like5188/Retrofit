@@ -151,7 +151,9 @@ class MainActivity : AppCompatActivity() {
 //                val file = File("/storage/emulated/0/Pictures/WeiXin/test.jpg")
                 val file = File("/storage/emulated/0/DCIM/P10102-182405.jpg")
                 uploadJob = lifecycleScope.launch(Dispatchers.Main) {
-                    MyApplication.mUploadRetrofit.uploadFile(this, url, file).collect {
+                    MyApplication.mUploadRetrofit.uploadFile(this, url, file) {
+                        return@uploadFile it
+                    }.collect {
                         Log.i("MainActivity", it.toString())
                     }
                 }

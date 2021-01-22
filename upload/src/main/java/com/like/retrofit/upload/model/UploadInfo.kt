@@ -4,8 +4,10 @@ import com.like.retrofit.util.getCustomNetworkMessage
 
 /**
  * 上传文件信息
+ *
+ * @param ResultType    返回结果类型
  */
-class UploadInfo {
+class UploadInfo<ResultType> {
     enum class Status {
         /**
          * when the upload is waiting to start.
@@ -19,9 +21,9 @@ class UploadInfo {
         STATUS_RUNNING,
 
         /**
-         * when the upload has completed.
+         * when the upload has successfully completed.
          */
-        STATUS_COMPLETED,
+        STATUS_SUCCESS,
 
         /**
          * when the upload has failed (and will not be retried).
@@ -62,7 +64,7 @@ class UploadInfo {
     /**
      * 上传接口返回的结果
      */
-    var result: String? = null
+    var result: ResultType? = null
 
     override fun toString(): String {
         return "DownloadInfo(uploadSize=$uploadSize, totalSize=$totalSize, status=$status, throwable=${throwable.getCustomNetworkMessage()}, result=$result)"

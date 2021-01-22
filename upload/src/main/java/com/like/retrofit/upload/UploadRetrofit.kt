@@ -45,16 +45,17 @@ class UploadRetrofit {
      * 上传文件
      *
      * @param coroutineScope
-     * @param url               请求地址。可以是完整路径或者子路径(如果在RequestConfig配置过)
-     * @param file              上传的文件
-     * @param fileKey           后端确定的File对应的key，后端用它来解析文件。默认："file"
-     * @param fileMediaType     上传文件的类型。默认：MediaType.parse("multipart/form-data")
-     * @param params            其它参数。默认：null
-     * @param paramsMediaType   上传参数的类型。默认：MediaType.parse("text/plain")
-     * @param callbackInterval  数据的发送频率限制，防止发送数据过快。默认200毫秒
+     * @param url                       请求地址。可以是完整路径或者子路径(如果在RequestConfig配置过)
+     * @param file                      上传的文件
+     * @param fileKey                   后端确定的File对应的key，后端用它来解析文件。默认："file"
+     * @param fileMediaType             上传文件的类型。默认：MediaType.parse("multipart/form-data")
+     * @param params                    其它参数。默认：null
+     * @param paramsMediaType           上传参数的类型。默认：MediaType.parse("text/plain")
+     * @param callbackInterval          数据的发送频率限制，防止发送数据过快。默认200毫秒
+     * @param parseResultTypeOrThrows   解析接口返回结果，并返回[ResultType]类型的结果。如果有异常，直接抛出即可。
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun uploadFile(
+    fun <ResultType> uploadFile(
         coroutineScope: CoroutineScope,
         url: String,
         file: File,
@@ -62,10 +63,11 @@ class UploadRetrofit {
         fileMediaType: MediaType? = "multipart/form-data".toMediaTypeOrNull(),
         params: Map<String, String>? = null,
         paramsMediaType: MediaType? = "text/plain".toMediaTypeOrNull(),
-        callbackInterval: Long = 200L
-    ): Flow<UploadInfo> {
+        callbackInterval: Long = 200L,
+        parseResultTypeOrThrows: (String) -> ResultType
+    ): Flow<UploadInfo<ResultType>> {
         // preHandleUploadInfo 用于实际上传前的一些逻辑处理
-        val preHandleUploadInfo = UploadInfo().apply {
+        val preHandleUploadInfo = UploadInfo<ResultType>().apply {
             this.url = url
             this.totalSize = file.length()
             this.absolutePath = file.absolutePath
@@ -73,7 +75,7 @@ class UploadRetrofit {
         var startTime = 0L// 用于 STATUS_RUNNING 状态的发射频率限制，便于更新UI进度。
         val retrofit = mRetrofit
 
-        val liveData = MutableLiveData<UploadInfo>()
+        val liveData = MutableLiveData<UploadInfo<ResultType>>()
         return liveData.asFlow().onStart {
             startTime = System.currentTimeMillis()
             coroutineScope.launch {
@@ -91,8 +93,9 @@ class UploadRetrofit {
                     val par: Map<String, RequestBody> = params?.mapValues {
                         it.value.toRequestBody(paramsMediaType)
                     } ?: emptyMap()
-                    val result = retrofit.create(UploadApi::class.java).uploadFile(url, part, par)
-                    preHandleUploadInfo.status = UploadInfo.Status.STATUS_COMPLETED
+
+                    val result = parseResultTypeOrThrows(retrofit.create(UploadApi::class.java).uploadFile(url, part, par))
+                    preHandleUploadInfo.status = UploadInfo.Status.STATUS_SUCCESS
                     preHandleUploadInfo.throwable = null
                     preHandleUploadInfo.result = result
                     liveData.postValue(preHandleUploadInfo)
@@ -106,7 +109,7 @@ class UploadRetrofit {
         }.filter {
             when (it.status) {
                 UploadInfo.Status.STATUS_PENDING -> false
-                UploadInfo.Status.STATUS_COMPLETED -> true
+                UploadInfo.Status.STATUS_SUCCESS -> true
                 UploadInfo.Status.STATUS_FAILED -> true// 上面coroutineScope.launch代码块里面的异常不会触发catch代码块。所以不是所有异常都是由catch代码块处理的。
                 UploadInfo.Status.STATUS_RUNNING -> {// STATUS_RUNNING 状态的发射频率限制
                     it.totalSize == it.uploadSize // 保证最后一次一定要传递
