@@ -10,14 +10,14 @@ interface UploadApi {
      * 上传文件
      *
      * @param url       地址。可以是完整路径或者子路径
-     * @param part      上传的文件
+     * @param partList  上传的文件集合
      * @param params    参数
      */
     @Multipart
     @POST
-    suspend fun uploadFile(
+    suspend fun uploadFiles(
         @Url url: String,
-        @Part part: MultipartBody.Part,
+        @Part partList: List<MultipartBody.Part>,
         @PartMap params: @JvmSuppressWildcards Map<String, RequestBody>
     ): String
 

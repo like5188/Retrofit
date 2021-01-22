@@ -14,6 +14,7 @@ import com.like.retrofit.download.utils.split
 import com.like.retrofit.util.getCustomNetworkMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.io.File
@@ -143,7 +144,6 @@ class MainActivity : AppCompatActivity() {
 
     var uploadJob: Job? = null
 
-    @SuppressLint("MissingPermission")
     fun uploadFiles(view: View) {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             if (it) {
@@ -151,10 +151,21 @@ class MainActivity : AppCompatActivity() {
 //                val file = File("/storage/emulated/0/Pictures/WeiXin/test.jpg")
                 val file = File("/storage/emulated/0/DCIM/P10102-182405.jpg")
                 uploadJob = lifecycleScope.launch(Dispatchers.Main) {
-                    MyApplication.mUploadRetrofit.uploadFile(this, url, file) {
-                        return@uploadFile it
-                    }.collect {
-                        Log.i("MainActivity", it.toString())
+                    try {
+                        val result = MyApplication.mUploadRetrofit
+                            .uploadFiles(
+                                url,
+                                mapOf(file to {
+                                    launch {
+                                        it.collect {
+                                            Log.d(TAG, "${Thread.currentThread().name} uploadedSize=$it  totalSize=${file.length()}")
+                                        }
+                                    }
+                                })
+                            )
+                        Log.i(TAG, result)
+                    } catch (e: Exception) {
+                        Log.e(TAG, e.message ?: "")
                     }
                 }
             }
