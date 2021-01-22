@@ -147,22 +147,19 @@ class MainActivity : AppCompatActivity() {
     fun uploadFiles(view: View) {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             if (it) {
-                val url = "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket"
-//                val file = File("/storage/emulated/0/Pictures/WeiXin/test.jpg")
-                val file = File("/storage/emulated/0/DCIM/P10102-182405.jpg")
                 uploadJob = lifecycleScope.launch(Dispatchers.Main) {
+                    val url = "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket"
+//                val file = File("/storage/emulated/0/Pictures/WeiXin/test.jpg")
+                    val file = File("/storage/emulated/0/DCIM/P10102-182405.jpg")
+                    val progressBlock: (Flow<Long>) -> Unit = {
+                        launch {
+                            it.collect {
+                                Log.d(TAG, "${Thread.currentThread().name} uploadedSize=$it  totalSize=${file.length()}")
+                            }
+                        }
+                    }
                     try {
-                        val result = MyApplication.mUploadRetrofit
-                            .uploadFiles(
-                                url,
-                                mapOf(file to {
-                                    launch {
-                                        it.collect {
-                                            Log.d(TAG, "${Thread.currentThread().name} uploadedSize=$it  totalSize=${file.length()}")
-                                        }
-                                    }
-                                })
-                            )
+                        val result = MyApplication.mUploadRetrofit.uploadFiles(url, mapOf(file to progressBlock))
                         Log.i(TAG, result)
                     } catch (e: Exception) {
                         Log.e(TAG, e.message ?: "")

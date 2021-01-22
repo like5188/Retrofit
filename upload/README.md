@@ -13,12 +13,20 @@
 ```java
     var uploadJob: Job? = null
     uploadJob = lifecycleScope.launch(Dispatchers.Main) {
-        mUploadRetrofit.uploadFile(
-            this,
-            url,
-            File("/storage/emulated/0/Pictures/WeiXin/test.jpg")
-        ).collect {
-            Log.i("MainActivity", it.toString())
+        val url = "xxx"
+        val file = File("xxx")
+        val progressBlock: (Flow<Long>) -> Unit = {
+            launch {
+                it.collect {
+                    Log.d(TAG, "${Thread.currentThread().name} uploadedSize=$it  totalSize=${file.length()}")
+                }
+            }
+        }
+        try {
+            val result = MyApplication.mUploadRetrofit.uploadFiles(url, mapOf(file to progressBlock))
+            Log.i(TAG, result)
+        } catch (e: Exception) {
+            Log.e(TAG, e.message ?: "")
         }
     }
     取消：
