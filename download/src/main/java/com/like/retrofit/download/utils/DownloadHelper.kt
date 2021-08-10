@@ -1,8 +1,10 @@
 package com.like.retrofit.download.utils
 
 import com.like.retrofit.download.model.DownloadInfo
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import retrofit2.HttpException
 import retrofit2.Retrofit
@@ -58,25 +60,28 @@ object DownloadHelper {
     /**
      * 把 ResponseBody 中的内容存储到 File中
      */
+    @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun saveBodyToFile(
         flowCollector: FlowCollector<DownloadInfo>,
         downloadInfo: DownloadInfo,
         body: ResponseBody
-    ) = body.byteStream().use { inputStream ->
-        RandomAccessFile(File(downloadInfo.absolutePath), "rwd")
-            .apply { seek(downloadInfo.cachedSize) }
-            .use { outputStream ->
-                val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                var bytesRead = inputStream.read(buffer)
-                while (bytesRead >= 0) {
-                    outputStream.write(buffer, 0, bytesRead)
+    ) = withContext(Dispatchers.IO) {
+        body.byteStream().use { inputStream ->
+            RandomAccessFile(File(downloadInfo.absolutePath), "rwd")
+                .apply { seek(downloadInfo.cachedSize) }
+                .use { outputStream ->
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    var bytesRead = inputStream.read(buffer)
+                    while (bytesRead >= 0) {
+                        outputStream.write(buffer, 0, bytesRead)
 
-                    downloadInfo.status = DownloadInfo.Status.STATUS_RUNNING
-                    flowCollector.emit(downloadInfo)
+                        downloadInfo.status = DownloadInfo.Status.STATUS_RUNNING
+                        flowCollector.emit(downloadInfo)
 
-                    bytesRead = inputStream.read(buffer)
+                        bytesRead = inputStream.read(buffer)
+                    }
                 }
-            }
+        }
     }
 
 }
