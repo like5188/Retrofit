@@ -229,9 +229,11 @@ class MainActivity : AppCompatActivity() {
     fun split(view: View) {
         val file = File(cacheDir, "TestMulti.zip")
         var totalSize = 0L
-        file.split(4)?.forEach {
-            Log.d(TAG, "fileName=${it.name} fileLength=${it.length()} filePath=${it.absolutePath}")
-            totalSize += it.length()
+        lifecycleScope.launch {
+            file.split(4)?.forEach {
+                Log.d(TAG, "fileName=${it.name} fileLength=${it.length()} filePath=${it.absolutePath}")
+                totalSize += it.length()
+            }
         }
         Log.w(TAG, "originSize=${file.length()} totalSize=$totalSize")
     }
@@ -239,12 +241,14 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     fun merge(view: View) {
         val outFile = File(cacheDir, "TestMulti.zip")
-        listOf(
-            File(cacheDir, "TestMulti.zip.1"),
-            File(cacheDir, "TestMulti.zip.2"),
-            File(cacheDir, "TestMulti.zip.3"),
-            File(cacheDir, "TestMulti.zip.4")
-        ).merge(outFile)
+        lifecycleScope.launch {
+            listOf(
+                File(cacheDir, "TestMulti.zip.1"),
+                File(cacheDir, "TestMulti.zip.2"),
+                File(cacheDir, "TestMulti.zip.3"),
+                File(cacheDir, "TestMulti.zip.4")
+            ).merge(outFile)
+        }
         Log.d(
             TAG,
             "outFileName=${outFile.name} outFileLength=${outFile.length()} outFilePath=${outFile.absolutePath}"
