@@ -48,11 +48,10 @@ class MyApplication : Application() {
             }
         }
 
-        // hlwyyssl.jkscw.com.cn 测试 postBody 方法。
         mCommonRetrofit.init(
             RequestConfig(
                 application = this@MyApplication,
-                baseUrl = "http://61.186.170.66:8800/xxc/",
+                baseUrl = "https://www.wanandroid.com/",
                 interceptors = listOf(publicParamsInterceptor, headerInterceptor)
             )
         )

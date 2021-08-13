@@ -11,6 +11,13 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:onClick="get"
+            android:text="get"
+            android:textAllCaps="false" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:onClick="getQueryMap"
             android:text="getQueryMap"
             android:textAllCaps="false" />

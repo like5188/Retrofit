@@ -5,6 +5,8 @@ import okhttp3.ResponseBody
 import retrofit2.http.*
 
 interface Api {
+    @GET("maven_pom/package/json")
+    suspend fun get(): String
 
     @FormUrlEncoded
     @POST("/user/login")

@@ -29,6 +29,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
+    fun get(view: View) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            try {
+                val result = MyApplication.mCommonRetrofit.getService<Api>().get()
+                Log.i(TAG, result)
+            } catch (e: Exception) {
+                Log.e(TAG, e.getCustomNetworkMessage())
+            }
+        }
+    }
+
     fun getQueryMap(view: View) {
         lifecycleScope.launch(Dispatchers.Main) {
             try {
