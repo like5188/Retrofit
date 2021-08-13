@@ -5,7 +5,9 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.JsonObject
@@ -17,12 +19,18 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class MainActivity : AppCompatActivity() {
     companion object {
         private val TAG = MainActivity::class.java.simpleName
     }
+
+    private val requestPermissionWrapper = RequestPermissionWrapper(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -156,7 +164,7 @@ class MainActivity : AppCompatActivity() {
     var uploadJob: Job? = null
 
     fun uploadFiles(view: View) {
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+        requestPermissionWrapper.requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE) {
             if (it) {
                 uploadJob = lifecycleScope.launch(Dispatchers.Main) {
                     val url = "http://61.186.170.66:8800/xxc/sys/upload/temp/xxc/basket"
@@ -177,7 +185,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-        }.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
     }
 
     fun cancelUploadFiles(view: View) {
@@ -255,4 +263,25 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    class RequestPermissionWrapper(caller: ActivityResultCaller) {
+        private var continuation: Continuation<Boolean>? = null
+        private var callback: ((Boolean) -> Unit)? = null
+        private val launcher = caller.registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            callback?.invoke(it)
+            continuation?.resume(it)
+        }
+
+        suspend fun requestPermission(permission: String): Boolean = withContext(Dispatchers.Main) {
+            suspendCoroutine {
+                continuation = it
+                launcher.launch(permission)
+            }
+        }
+
+        @MainThread
+        fun requestPermission(permission: String, callback: (Boolean) -> Unit) {
+            this.callback = callback
+            launcher.launch(permission)
+        }
+    }
 }
