@@ -79,10 +79,10 @@ import retrofit2.http.Url
  * 如果有默认的构造函数，则通过反射调用默认构造函数创建实例。此时不会给final字段复制，那么age的值就会变成0了。
  *
  * 3、baseUrl 和 path 的关系
- * BaseUrl	                Path形式	Path对应的值	                最后Url
- * http://host:port/a/b/	绝对路径	/apath	                    http://host:port/apath
- * http://host:port/a/b/	相对路径	apath	                    http://host:port/a/b/apath
- * http://host:port/a/b/	完整路径	http://host:port/aa/apath	http://host:port/aa/apath
+ * BaseUrl	                Path形式	    Path对应的值	                最后Url
+ * http://host:port/a/b/	绝对路径	    /apath	                    http://host:port/apath
+ * http://host:port/a/b/	相对路径	    apath	                    http://host:port/a/b/apath
+ * http://host:port/a/b/	完整路径	    http://host:port/aa/apath	http://host:port/aa/apath
  */
 interface DownloadApi {
     /**
