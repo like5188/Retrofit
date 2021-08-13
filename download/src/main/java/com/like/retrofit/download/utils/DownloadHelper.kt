@@ -3,9 +3,11 @@
 package com.like.retrofit.download.utils
 
 import com.like.retrofit.download.model.DownloadInfo
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import java.io.File
@@ -73,6 +75,6 @@ object DownloadHelper {
         } else if (response.code() != 416) {// 416表示请求的range超出范围。就表示已经下载完成了。不知道为什么，416错误有时候不能触发。难道是因为服务端不支持？
             throw HttpException(response)
         }
-    }.flowOn(Dispatchers.IO)
+    }
 
 }
