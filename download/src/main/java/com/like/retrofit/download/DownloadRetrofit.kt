@@ -8,7 +8,6 @@ import com.like.retrofit.download.utils.DownloadHelper
 import com.like.retrofit.download.utils.clearDownloadCaches
 import com.like.retrofit.download.utils.merge
 import com.like.retrofit.util.OkHttpClientFactory
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import okhttp3.logging.HttpLoggingInterceptor
@@ -112,7 +111,7 @@ class DownloadRetrofit {
             preHandleDownloadInfo.status = DownloadInfo.Status.STATUS_FAILED
             preHandleDownloadInfo.throwable = throwable
             emit(preHandleDownloadInfo)
-        }.flowOn(Dispatchers.IO)
+        }
 
     }
 
