@@ -31,7 +31,7 @@ public class HttpsUtils {
         public X509TrustManager trustManager;
     }
 
-    public static SSLParams getSslSocketFactory(InputStream[] certificates, InputStream bksFile, String password) {
+    public static SSLParams getSSLParams(InputStream[] certificates, InputStream bksFile, String password) {
         SSLParams sslParams = new SSLParams();
         try {
             TrustManager[] trustManagers = prepareTrustManager(certificates);
@@ -39,7 +39,7 @@ public class HttpsUtils {
             SSLContext sslContext = SSLContext.getInstance("TLS");
             X509TrustManager trustManager = null;
             if (trustManagers != null) {
-                trustManager = new MyTrustManager(chooseTrustManager(trustManagers));
+                trustManager = new SafeTrustManager(chooseTrustManager(trustManagers));
             } else {
                 trustManager = new UnSafeTrustManager();
             }
@@ -49,30 +49,6 @@ public class HttpsUtils {
             return sslParams;
         } catch (Exception e) {
             throw new AssertionError(e);
-        }
-    }
-
-    private class UnSafeHostnameVerifier implements HostnameVerifier {
-        @Override
-        public boolean verify(String hostname, SSLSession session) {
-            return true;
-        }
-    }
-
-    private static class UnSafeTrustManager implements X509TrustManager {
-        @Override
-        public void checkClientTrusted(X509Certificate[] chain, String authType)
-                throws CertificateException {
-        }
-
-        @Override
-        public void checkServerTrusted(X509Certificate[] chain, String authType)
-                throws CertificateException {
-        }
-
-        @Override
-        public X509Certificate[] getAcceptedIssuers() {
-            return new X509Certificate[]{};
         }
     }
 
@@ -106,7 +82,6 @@ public class HttpsUtils {
             e.printStackTrace();
         }
         return null;
-
     }
 
     private static KeyManager[] prepareKeyManager(InputStream bksFile, String password) {
@@ -134,12 +109,11 @@ public class HttpsUtils {
         return null;
     }
 
-
-    private static class MyTrustManager implements X509TrustManager {
+    private static class SafeTrustManager implements X509TrustManager {
         private X509TrustManager defaultTrustManager;
         private X509TrustManager localTrustManager;
 
-        public MyTrustManager(X509TrustManager localTrustManager) throws NoSuchAlgorithmException, KeyStoreException {
+        public SafeTrustManager(X509TrustManager localTrustManager) throws NoSuchAlgorithmException, KeyStoreException {
             TrustManagerFactory var4 = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             var4.init((KeyStore) null);
             defaultTrustManager = chooseTrustManager(var4.getTrustManagers());
@@ -168,4 +142,28 @@ public class HttpsUtils {
         }
     }
 
+    private static class UnSafeTrustManager implements X509TrustManager {
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType)
+                throws CertificateException {
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType)
+                throws CertificateException {
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[]{};
+        }
+    }
+
+    public static class UnSafeHostnameVerifier implements HostnameVerifier {
+        @Override
+        public boolean verify(String hostname, SSLSession session) {
+            // 强行返回true，忽略HostName验证 即验证成功
+            return true;
+        }
+    }
 }

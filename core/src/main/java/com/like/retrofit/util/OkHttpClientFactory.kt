@@ -5,7 +5,6 @@ import com.like.retrofit.interceptor.CacheInterceptor
 import com.like.retrofit.interceptor.NetworkInterceptor
 import okhttp3.Cache
 import java.util.concurrent.TimeUnit
-import javax.net.ssl.HostnameVerifier
 
 object OkHttpClientFactory {
     fun createOkHttpClientBuilder(requestConfig: RequestConfig): okhttp3.OkHttpClient.Builder {
@@ -16,17 +15,15 @@ object OkHttpClientFactory {
             .writeTimeout(requestConfig.writeTimeout, TimeUnit.SECONDS)
 
         // 设置HTTPS协议的证书
-        if (requestConfig.getScheme() == "https" && requestConfig.certificateRawResId != -1) {
-            HttpsUtils.getSslSocketFactory(
-                arrayOf(requestConfig.application.resources.openRawResource(requestConfig.certificateRawResId)),
-                null, null
-            )?.let {
-                // 接下来给okhttp绑定证书
-                httpClientBuilder.sslSocketFactory(it.sSLSocketFactory, it.trustManager)
-                    .hostnameVerifier(HostnameVerifier { hostname, session ->
-                        // 强行返回true，忽略HostName验证 即验证成功
-                        true
-                    })
+        if (requestConfig.getScheme() == "https") {
+            val certificates = if (requestConfig.certificateRawResId != -1) {
+                arrayOf(requestConfig.application.resources.openRawResource(requestConfig.certificateRawResId))
+            } else {
+                null
+            }
+            HttpsUtils.getSSLParams(certificates, null, null)?.apply {
+                httpClientBuilder.sslSocketFactory(sSLSocketFactory, trustManager)
+                    .hostnameVerifier(HttpsUtils.UnSafeHostnameVerifier())
             }
         }
 
