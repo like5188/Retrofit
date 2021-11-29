@@ -14,10 +14,11 @@ import okhttp3.Interceptor
  * @param writeTimeout          写超时时间（单位秒）
  * @param certificateRawResId   当采用 https 请求时，证书文件的资源 id。
  * 证书文件必须放在res/raw/目录下。
- * -1：信任所有证书；
+ * 默认为 -1：信任所有证书；
  * >= 0：信任指定证书；
  * 其它：信任 Android 系统自带的 CA 证书
- * @param hostNames             允许请求的 HostName 集合(格式：www.xxx.com)。默认为空，会忽略 HostName 验证。
+ * @param hostNames             允许请求的 HostName 集合(格式：www.xxx.com)。
+ * 默认为空，会忽略 HostName 验证。
  * @param interceptors          自定义的拦截器，继承自[Interceptor]。
  * [com.like.retrofit.interceptor]中提供了几个默认拦截器：
  * [com.like.retrofit.interceptor.CacheInterceptor]、
