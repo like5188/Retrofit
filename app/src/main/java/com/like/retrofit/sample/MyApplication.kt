@@ -52,6 +52,8 @@ class MyApplication : Application() {
             RequestConfig(
                 application = this@MyApplication,
                 baseUrl = "https://www.wanandroid.com/",
+//                certificateRawResId = -2,
+                hostNames = listOf("www.wanandroid.com"),
                 interceptors = listOf(publicParamsInterceptor, headerInterceptor)
             )
         )

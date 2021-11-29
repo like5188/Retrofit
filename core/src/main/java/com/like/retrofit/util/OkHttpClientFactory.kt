@@ -14,23 +14,38 @@ object OkHttpClientFactory {
             .readTimeout(requestConfig.readTimeout, TimeUnit.SECONDS)
             .writeTimeout(requestConfig.writeTimeout, TimeUnit.SECONDS)
 
-        // 设置 HTTPS 协议的证书、HostName 验证
         if (requestConfig.getScheme() == "https") {
-            val certificates = if (requestConfig.certificateRawResId == -1) {
-                null
-            } else {
-                arrayOf(requestConfig.application.resources.openRawResource(requestConfig.certificateRawResId))
+            // 设置 HTTPS 协议的证书
+            when {
+                requestConfig.certificateRawResId == -1 -> {
+                    // 信任所有证书
+                    val sslParams = HttpsUtils.getSSLParams(
+                        null,
+                        null,
+                        null
+                    )
+                    httpClientBuilder.sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager)
+                }
+                requestConfig.certificateRawResId >= 0 -> {
+                    // 信任指定证书
+                    val sslParams = HttpsUtils.getSSLParams(
+                        arrayOf(requestConfig.application.resources.openRawResource(requestConfig.certificateRawResId)),
+                        null,
+                        null
+                    )
+                    httpClientBuilder.sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager)
+                }
+                else -> {
+                    // 信任 Android 系统自带的 CA 证书
+                }
             }
-
+            // 设置 HostName 验证
             val hostnameVerifier = if (requestConfig.hostNames.isEmpty()) {
                 HttpsUtils.UnSafeHostnameVerifier()
             } else {
                 HttpsUtils.SafeHostnameVerifier(requestConfig.hostNames)
             }
-
-            HttpsUtils.getSSLParams(certificates, null, null)?.apply {
-                httpClientBuilder.sslSocketFactory(sSLSocketFactory, trustManager).hostnameVerifier(hostnameVerifier)
-            }
+            httpClientBuilder.hostnameVerifier(hostnameVerifier)
         }
 
         // 设置拦截器

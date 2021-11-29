@@ -24,7 +24,7 @@ interface Api {
     @POST("/user/login")
     suspend fun postPartMap(@PartMap data: @JvmSuppressWildcards Map<String, String>): ResponseBody
 
-    @POST("/users/channels/internet-hospital/token/")
+    @POST("https://kcwcdev.i.cacf.cn/api/user/1.0.0/login")
     suspend fun postBody(@Body params: JsonObject): ResponseBody
 
     @POST("/users/channels/internet-hospital/token/")

@@ -24,9 +24,6 @@ import javax.net.ssl.X509TrustManager;
 
 /**
  * describe https 绑定证书工具类
- *
- * @author emilia.Zhang
- * @time 2017/8/11 9:43.
  */
 public class HttpsUtils {
     public static class SSLParams {
@@ -34,10 +31,18 @@ public class HttpsUtils {
         public X509TrustManager trustManager;
     }
 
+    /**
+     * @param certificates 单向、双向通信都需要
+     * @param bksFile      双向通信需要
+     * @param password     [bksFile]需要
+     * @return
+     */
     public static SSLParams getSSLParams(InputStream[] certificates, InputStream bksFile, String password) {
         SSLParams sslParams = new SSLParams();
         try {
+            // 负责验证peer 发来的证书。
             TrustManager[] trustManagers = prepareTrustManager(certificates);
+            // 负责提供证书和私钥，证书发给对方peer
             KeyManager[] keyManagers = prepareKeyManager(bksFile, password);
             SSLContext sslContext = SSLContext.getInstance("TLS");
             X509TrustManager trustManager = null;
@@ -58,7 +63,6 @@ public class HttpsUtils {
     private static TrustManager[] prepareTrustManager(InputStream... certificates) {
         if (certificates == null || certificates.length <= 0) return null;
         try {
-
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
             KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
             keyStore.load(null);
@@ -74,8 +78,7 @@ public class HttpsUtils {
             }
             TrustManagerFactory trustManagerFactory = null;
 
-            trustManagerFactory = TrustManagerFactory.
-                    getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             trustManagerFactory.init(keyStore);
 
             TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
@@ -96,7 +99,6 @@ public class HttpsUtils {
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             keyManagerFactory.init(clientKeyStore, password.toCharArray());
             return keyManagerFactory.getKeyManagers();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
