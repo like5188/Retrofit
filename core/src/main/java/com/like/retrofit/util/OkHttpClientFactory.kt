@@ -14,16 +14,22 @@ object OkHttpClientFactory {
             .readTimeout(requestConfig.readTimeout, TimeUnit.SECONDS)
             .writeTimeout(requestConfig.writeTimeout, TimeUnit.SECONDS)
 
-        // 设置HTTPS协议的证书
+        // 设置HTTPS协议的证书、域名验证
         if (requestConfig.getScheme() == "https") {
-            val certificates = if (requestConfig.certificateRawResId != -1) {
-                arrayOf(requestConfig.application.resources.openRawResource(requestConfig.certificateRawResId))
-            } else {
+            val certificates = if (requestConfig.certificateRawResId == -1) {
                 null
+            } else {
+                arrayOf(requestConfig.application.resources.openRawResource(requestConfig.certificateRawResId))
             }
+
+            val hostnameVerifier = if (requestConfig.hostNames.isEmpty()) {
+                HttpsUtils.UnSafeHostnameVerifier()
+            } else {
+                HttpsUtils.SafeHostnameVerifier(requestConfig.hostNames)
+            }
+
             HttpsUtils.getSSLParams(certificates, null, null)?.apply {
-                httpClientBuilder.sslSocketFactory(sSLSocketFactory, trustManager)
-                    .hostnameVerifier(HttpsUtils.UnSafeHostnameVerifier())
+                httpClientBuilder.sslSocketFactory(sSLSocketFactory, trustManager).hostnameVerifier(hostnameVerifier)
             }
         }
 

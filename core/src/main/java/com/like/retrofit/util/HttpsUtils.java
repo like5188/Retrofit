@@ -1,5 +1,7 @@
 package com.like.retrofit.util;
 
+import android.text.TextUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -8,8 +10,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -156,6 +160,25 @@ public class HttpsUtils {
         @Override
         public X509Certificate[] getAcceptedIssuers() {
             return new X509Certificate[]{};
+        }
+    }
+
+    public static class SafeHostnameVerifier implements HostnameVerifier {
+        private final List<String> hostNames;
+
+        public SafeHostnameVerifier(List<String> hostNames) {
+            this.hostNames = hostNames;
+        }
+
+        @Override
+        public boolean verify(String hostname, SSLSession session) {
+            if (hostname == null || TextUtils.isEmpty(hostname)) {
+                return false;
+            }
+            if (hostNames.contains(hostname)) {
+                return true;
+            }
+            return HttpsURLConnection.getDefaultHostnameVerifier().verify(hostname, session);
         }
     }
 

@@ -8,11 +8,12 @@ import okhttp3.Interceptor
  * 网络请求相关配置
  *
  * @param application
- * @param baseUrl               默认"https://www.xxx.com/"。正确格式为："http（https）:"开头，"/"结尾
+ * @param baseUrl               默认"https://www.xxx.com/"。正确格式为："http(https):"开头，"/"结尾
  * @param connectTimeout        连接超时时间（单位秒）
  * @param readTimeout           读超时时间（单位秒）
  * @param writeTimeout          写超时时间（单位秒）
- * @param certificateRawResId   当采用RetrofitUtils.SCHEME_HTTPS请求时，证书文件的资源id。证书文件必须放在res/raw/目录下
+ * @param certificateRawResId   当采用 https 请求时，证书文件的资源 id。证书文件必须放在res/raw/目录下。默认为 -1，会信任所有证书。
+ * @param hostNames             允许请求的域名集合。默认为空，会忽略 HostName 验证。
  * @param interceptors          自定义的拦截器，继承自[Interceptor]。
  * [com.like.retrofit.interceptor]中提供了几个默认拦截器：
  * [com.like.retrofit.interceptor.CacheInterceptor]、
@@ -28,6 +29,7 @@ data class RequestConfig(
     val readTimeout: Long = 10L,
     val writeTimeout: Long = 60L,
     val certificateRawResId: Int = -1,
+    val hostNames: List<String> = emptyList(),
     val interceptors: List<Interceptor>? = null
 ) {
     companion object {
