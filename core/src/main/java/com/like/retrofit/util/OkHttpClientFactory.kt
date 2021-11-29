@@ -14,7 +14,7 @@ object OkHttpClientFactory {
             .readTimeout(requestConfig.readTimeout, TimeUnit.SECONDS)
             .writeTimeout(requestConfig.writeTimeout, TimeUnit.SECONDS)
 
-        // 设置HTTPS协议的证书、域名验证
+        // 设置 HTTPS 协议的证书、HostName 验证
         if (requestConfig.getScheme() == "https") {
             val certificates = if (requestConfig.certificateRawResId == -1) {
                 null
