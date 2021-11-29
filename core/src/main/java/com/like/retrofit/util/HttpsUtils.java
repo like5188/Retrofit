@@ -185,7 +185,7 @@ public class HttpsUtils {
     public static class UnSafeHostnameVerifier implements HostnameVerifier {
         @Override
         public boolean verify(String hostname, SSLSession session) {
-            // 强行返回true，忽略HostName验证 即验证成功
+            // 强行返回 true，忽略 HostName 验证
             return true;
         }
     }
