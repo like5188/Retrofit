@@ -13,7 +13,7 @@ import okhttp3.Interceptor
  * @param readTimeout           读超时时间（单位秒）
  * @param writeTimeout          写超时时间（单位秒）
  * @param certificateRawResId   当采用 https 请求时，证书文件的资源 id。证书文件必须放在res/raw/目录下。默认为 -1，会信任所有证书。
- * @param hostNames             允许请求的 HostName 集合。默认为空，会忽略 HostName 验证。
+ * @param hostNames             允许请求的 HostName 集合(格式：www.xxx.com)。默认为空，会忽略 HostName 验证。
  * @param interceptors          自定义的拦截器，继承自[Interceptor]。
  * [com.like.retrofit.interceptor]中提供了几个默认拦截器：
  * [com.like.retrofit.interceptor.CacheInterceptor]、
