@@ -13,7 +13,6 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -175,10 +174,7 @@ public class HttpsUtils {
             if (hostname == null || TextUtils.isEmpty(hostname)) {
                 return false;
             }
-            if (hostNames.contains(hostname)) {
-                return true;
-            }
-            return HttpsURLConnection.getDefaultHostnameVerifier().verify(hostname, session);
+            return hostNames.contains(hostname);
         }
     }
 
