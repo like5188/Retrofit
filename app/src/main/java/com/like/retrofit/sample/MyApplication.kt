@@ -55,6 +55,7 @@ class MyApplication : Application() {
                     publicParamsInterceptor,
                     headerInterceptor,
                     CacheInterceptor(this),
+//                    NetworkMonitorInterceptor(this)
                 )
             )
         )
