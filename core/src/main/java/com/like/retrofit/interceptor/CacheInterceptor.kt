@@ -14,9 +14,9 @@ import java.util.concurrent.TimeUnit
  * 自定义的缓存拦截器，需要与[NetworkInterceptor]配合使用
  *
  * 缓存策略为：有网络就从网络获取数据并缓存到本地；无网络就从本地缓存获取数据。
- * 缓存时间在Api接口中通过@Headers("cache:60")对指定接口设置。
+ * 缓存时间在Api的@GET接口中通过@Headers("cache:60")对指定接口设置。
  */
-class CacheInterceptor(val application: Application) : Interceptor {
+class CacheInterceptor(private val application: Application) : Interceptor {
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
