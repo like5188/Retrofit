@@ -5,6 +5,8 @@ import okhttp3.ResponseBody
 import retrofit2.http.*
 
 interface Api {
+    // 缓存单位为秒
+    @Headers("cache:10")
     @GET("maven_pom/package/json")
     suspend fun get(): String
 
@@ -36,7 +38,6 @@ interface Api {
     @POST("/users/channels/internet-hospital/token/")
     suspend fun postBodyResultModel(@Body params: ResultModel<String>): ResponseBody
 
-    @Headers("cache:60")
     @GET("sys/randomImage/{key}")
     suspend fun getQueryMap(@Path("key") key: String): ResultModel<String?>
 

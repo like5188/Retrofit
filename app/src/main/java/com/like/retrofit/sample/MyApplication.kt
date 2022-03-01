@@ -4,10 +4,7 @@ import android.app.Application
 import com.like.retrofit.RequestConfig
 import com.like.retrofit.common.CommonRetrofit
 import com.like.retrofit.download.DownloadRetrofit
-import com.like.retrofit.interceptor.DecryptInterceptor
-import com.like.retrofit.interceptor.EncryptInterceptor
-import com.like.retrofit.interceptor.HeaderInterceptor
-import com.like.retrofit.interceptor.PublicParamsInterceptor
+import com.like.retrofit.interceptor.*
 import com.like.retrofit.upload.UploadRetrofit
 import com.like.retrofit.util.aesDecrypt
 import com.like.retrofit.util.aesEncrypt
@@ -54,7 +51,11 @@ class MyApplication : Application() {
                 baseUrl = "https://www.wanandroid.com/",
 //                certificateRawResId = -2,
                 hostNames = listOf("www.wanandroid.com"),
-                interceptors = listOf(publicParamsInterceptor, headerInterceptor)
+                interceptors = listOf(
+                    publicParamsInterceptor,
+                    headerInterceptor,
+                    CacheInterceptor(this),
+                )
             )
         )
 
