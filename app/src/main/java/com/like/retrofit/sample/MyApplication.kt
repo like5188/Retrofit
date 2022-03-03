@@ -52,10 +52,10 @@ class MyApplication : Application() {
 //                certificateRawResId = -2,
                 hostNames = listOf("www.wanandroid.com"),
                 interceptors = listOf(
-                    publicParamsInterceptor,
-                    headerInterceptor,
-                    CacheInterceptor(this),
-//                    NetworkMonitorInterceptor(this)
+//                    publicParamsInterceptor,
+//                    headerInterceptor,
+//                    CacheInterceptor(this),
+                    NetworkMonitorInterceptor(this)
                 )
             )
         )

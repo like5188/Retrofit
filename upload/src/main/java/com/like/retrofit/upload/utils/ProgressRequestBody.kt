@@ -34,7 +34,7 @@ internal class ProgressRequestBody(private val delegate: RequestBody) : RequestB
                 override fun write(source: Buffer, byteCount: Long) {
                     super.write(source, byteCount)
                     bytesWritten += byteCount
-                    _controlCh.offer(bytesWritten)
+                    _controlCh.trySend(bytesWritten)
                 }
             }.buffer()
         }
