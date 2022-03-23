@@ -1,6 +1,5 @@
 package com.like.retrofit.common
 
-import com.google.gson.Gson
 import com.like.retrofit.RequestConfig
 import com.like.retrofit.util.OkHttpClientFactory
 import okhttp3.logging.HttpLoggingInterceptor
@@ -15,7 +14,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 class CommonRetrofit {
     var mRetrofit: Retrofit? = null
 
-    fun init(requestConfig: RequestConfig, gsonConverterFactory: Converter.Factory = GsonConverterFactory.create(Gson())): CommonRetrofit {
+    fun init(requestConfig: RequestConfig, gsonConverterFactory: Converter.Factory = GsonConverterFactory.create()): CommonRetrofit {
         mRetrofit = Retrofit.Builder()
             .client(
                 OkHttpClientFactory.createOkHttpClientBuilder(requestConfig)
