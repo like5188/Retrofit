@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.like.retrofit.RequestConfig
 import com.like.retrofit.util.OkHttpClientFactory
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
@@ -14,7 +15,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 class CommonRetrofit {
     var mRetrofit: Retrofit? = null
 
-    fun init(requestConfig: RequestConfig, gson: Gson = Gson()): CommonRetrofit {
+    fun init(requestConfig: RequestConfig, gsonConverterFactory: Converter.Factory = GsonConverterFactory.create(Gson())): CommonRetrofit {
         mRetrofit = Retrofit.Builder()
             .client(
                 OkHttpClientFactory.createOkHttpClientBuilder(requestConfig)
@@ -23,7 +24,7 @@ class CommonRetrofit {
             )
             .baseUrl(requestConfig.baseUrl)
             .addConverterFactory(ScalarsConverterFactory.create())// 处理String和8种基本数据类型的情况。
-            .addConverterFactory(GsonConverterFactory.create(gson))// 处理实体对象的情况。
+            .addConverterFactory(gsonConverterFactory)// 处理实体对象的情况。
             .build()
         return this
     }
