@@ -22,5 +22,5 @@ fun Throwable?.getCustomNetworkMessage() =
         is UnknownHostException, is IOException -> "无法连接到服务器"
         is JsonParseException, is JSONException -> "解析数据错误"
         is SSLHandshakeException -> "证书验证失败"
-        else -> "$this"
+        else -> this.message
     }
