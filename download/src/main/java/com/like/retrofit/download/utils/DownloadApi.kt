@@ -9,6 +9,7 @@ import retrofit2.http.Url
 
 /**
  * retrofit2 支持的网络请求接口
+ * 注意：如果使用泛型，会解析失败。java.lang.ClassCastException: com.google.gson.internal.LinkedTreeMap cannot be cast to
  */
 
 /** 注解：
